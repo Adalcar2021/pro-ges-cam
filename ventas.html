@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAMSEG - Ventas</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <i class="fas fa-shield-halved"></i>
+          <span>CAMSEG</span>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Menú Principal</div>
+          <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-house"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="clientes.html" class="nav-item">
+            <i class="fas fa-users"></i>
+            <span>Clientes</span>
+          </a>
+          <a href="agenda.html" class="nav-item">
+            <i class="fas fa-calendar-days"></i>
+            <span>Agenda</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Ventas</div>
+          <a href="ventas.html" class="nav-item active">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Ventas</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Servicios</div>
+          <a href="servicios.html" class="nav-item">
+            <i class="fas fa-video"></i>
+            <span>Instalaciones</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Gestión</div>
+          <a href="cotizaciones.html" class="nav-item">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <span>Cotizaciones</span>
+          </a>
+          <a href="inventarios.html" class="nav-item">
+            <i class="fas fa-boxes"></i>
+            <span>Inventario</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Usuario</div>
+          <div class="nav-item">
+            <i class="fas fa-user"></i>
+            <span id="user-name">Cargando...</span>
+          </div>
+          <a href="#" class="nav-item" id="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Cerrar Sesión</span>
+          </a>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="user-initials">U</div>
+          <div class="user-details">
+            <div class="user-name" id="user-name">Usuario</div>
+            <div class="user-role" id="user-role">Rol</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="content-header">
+        <div class="header-title">
+          <h1><i class="fas fa-shopping-cart"></i> Ventas</h1>
+          <p>Gestión de ventas y facturación</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="openModal()">
+            <i class="fas fa-plus"></i>
+            Nueva Venta
+          </button>
+        </div>
+      </header>
+
+      <!-- Resumen de Ventas -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value" id="ventas-hoy">$0.00</div>
+            <div class="stat-label">Ventas Hoy</div>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-calendar-week"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value" id="ventas-semana">$0.00</div>
+            <div class="stat-label">Ventas Semana</div>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-calendar-alt"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value" id="ventas-mes">$0.00</div>
+            <div class="stat-label">Ventas Mes</div>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-receipt"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value" id="total-ventas">0</div>
+            <div class="stat-label">Total Ventas</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-section">
+        <div class="filter-group">
+          <label>Estado:</label>
+          <select id="filter-estado" onchange="loadVentas()">
+            <option value="">Todos</option>
+            <option value="pendiente">Pendiente</option>
+            <option value="pagada">Pagada</option>
+            <option value="cancelada">Cancelada</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label>Método Pago:</label>
+          <select id="filter-pago" onchange="loadVentas()">
+            <option value="">Todos</option>
+            <option value="efectivo">Efectivo</option>
+            <option value="tarjeta">Tarjeta</option>
+            <option value="transferencia">Transferencia</option>
+            <option value="mixto">Mixto</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label>Fecha Inicio:</label>
+          <input type="date" id="filter-fecha-inicio" onchange="loadVentas()">
+        </div>
+        
+        <div class="filter-group">
+          <label>Fecha Fin:</label>
+          <input type="date" id="filter-fecha-fin" onchange="loadVentas()">
+        </div>
+        
+        <div class="filter-group">
+          <label>Buscar:</label>
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search-input" placeholder="Buscar ventas..." onkeyup="if(event.key==='Enter') loadVentas()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Sales Table -->
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>N° Factura</th>
+              <th>Cliente</th>
+              <th>Fecha</th>
+              <th>Total</th>
+              <th>Método Pago</th>
+              <th>Estado</th>
+              <th>Vendedor</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="ventas-table">
+            <tr>
+              <td colspan="8" class="text-center">
+                <i class="fas fa-spinner fa-spin"></i> Cargando ventas...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Venta -->
+  <div id="modal-venta" class="modal">
+    <div class="modal-content large">
+      <div class="modal-header">
+        <h3 id="modal-title">Nueva Venta</h3>
+        <button class="modal-close" onclick="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <form id="venta-form" onsubmit="saveVenta(event)">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Cliente *</label>
+              <select id="venta-cliente" required onchange="updateClienteInfo()">
+                <option value="">Seleccionar cliente...</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Método Pago *</label>
+              <select id="venta-pago" required onchange="updatePagoFields()">
+                <option value="">Seleccionar...</option>
+                <option value="efectivo">Efectivo</option>
+                <option value="tarjeta">Tarjeta</option>
+                <option value="transferencia">Transferencia</option>
+                <option value="mixto">Mixto</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Fecha Venta *</label>
+              <input type="datetime-local" id="venta-fecha" required>
+            </div>
+            
+            <div class="form-group">
+              <label>N° Factura</label>
+              <input type="text" id="venta-factura" placeholder="Autogenerado si está vacío">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Notas</label>
+            <textarea id="venta-notas" rows="3" placeholder="Notas de la venta"></textarea>
+          </div>
+          
+          <!-- Detalles de venta -->
+          <div class="detalles-section">
+            <div class="detalles-header">
+              <h4>Productos Vendidos</h4>
+              <button type="button" class="btn btn-sm btn-primary" onclick="addDetalle()">
+                <i class="fas fa-plus"></i> Agregar Producto
+              </button>
+            </div>
+            
+            <div class="detalles-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th>Descripción</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Descuento</th>
+                    <th>Subtotal</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="detalles-tbody">
+                  <tr>
+                    <td colspan="7" class="text-center">No hay productos agregados</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <!-- Campos de pago mixto -->
+            <div id="pago-mixto" style="display: none;">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Monto Efectivo:</label>
+                  <input type="number" id="pago-efectivo" min="0" step="0.01" onchange="calculateTotals()">
+                </div>
+                
+                <div class="form-group">
+                  <label>Monto Tarjeta:</label>
+                  <input type="number" id="pago-tarjeta" min="0" step="0.01" onchange="calculateTotals()">
+                </div>
+                
+                <div class="form-group">
+                  <label>Monto Transferencia:</label>
+                  <input type="number" id="pago-transferencia" min="0" step="0.01" onchange="calculateTotals()">
+                </div>
+              </div>
+            </div>
+            
+            <!-- Totales -->
+            <div class="totales-section">
+              <div class="totales-row">
+                <label>Subtotal:</label>
+                <span id="subtotal">$0.00</span>
+              </div>
+              <div class="totales-row">
+                <label>Descuento General:</label>
+                <input type="number" id="descuento-general" min="0" step="0.01" value="0" onchange="calculateTotals()">
+              </div>
+              <div class="totales-row">
+                <label>IVA (12%):</label>
+                <span id="iva">$0.00</span>
+              </div>
+              <div class="totales-row total">
+                <label>Total:</label>
+                <span id="total">$0.00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i>
+            Guardar Venta
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Ver Venta -->
+  <div id="modal-ver" class="modal">
+    <div class="modal-content large">
+      <div class="modal-header">
+        <h3>Detalles de Venta</h3>
+        <button class="modal-close" onclick="closeModalVer()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body" id="ver-venta-content">
+        <!-- Content loaded dynamically -->
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModalVer()">Cerrar</button>
+        <button class="btn btn-success" onclick="imprimirFactura()" id="btn-imprimir">
+          <i class="fas fa-print"></i>
+          Imprimir Factura
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    let currentEditId = null;
+    let detalles = [];
+
+    // Cargar ventas al iniciar
+    document.addEventListener('DOMContentLoaded', () => {
+      loadVentas();
+      loadClientes();
+      loadEstadisticas();
+      setDefaultFecha();
+    });
+
+    // Cargar estadísticas
+    async function loadEstadisticas() {
+      try {
+        const response = await api.getVentasEstadisticas();
+        const stats = response.estadisticas || {};
+        
+        document.getElementById('ventas-hoy').textContent = `$${formatCurrency(stats.ventas_hoy || 0)}`;
+        document.getElementById('ventas-semana').textContent = `$${formatCurrency(stats.ventas_semana || 0)}`;
+        document.getElementById('ventas-mes').textContent = `$${formatCurrency(stats.ventas_mes || 0)}`;
+        document.getElementById('total-ventas').textContent = stats.total_ventas || 0;
+      } catch (error) {
+        console.error('Error cargando estadísticas:', error);
+      }
+    }
+
+    // Cargar lista de ventas
+    async function loadVentas() {
+      try {
+        const estado = document.getElementById('filter-estado').value;
+        const metodo_pago = document.getElementById('filter-pago').value;
+        const fecha_inicio = document.getElementById('filter-fecha-inicio').value;
+        const fecha_fin = document.getElementById('filter-fecha-fin').value;
+        const search = document.getElementById('search-input').value;
+        
+        const response = await api.getVentas({ estado, metodo_pago, fecha_inicio, fecha_fin, search });
+        const ventas = response.ventas || [];
+        
+        const tbody = document.getElementById('ventas-table');
+        tbody.innerHTML = '';
+        
+        if (ventas.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="8" class="text-center">
+                <i class="fas fa-inbox"></i>
+                <p>No se encontraron ventas</p>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+        
+        ventas.forEach(venta => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${venta.numero_factura}</td>
+            <td>${venta.cliente_nombre || 'N/A'}</td>
+            <td>${formatDate(venta.fecha_venta)}</td>
+            <td>$${formatCurrency(venta.total)}</td>
+            <td><span class="badge badge-${venta.metodo_pago}">${getMetodoPagoLabel(venta.metodo_pago)}</span></td>
+            <td><span class="badge badge-${venta.estado}">${getEstadoLabel(venta.estado)}</span></td>
+            <td>${venta.vendedor_nombre || 'N/A'}</td>
+            <td>
+              <button class="btn btn-sm btn-info" onclick="verVenta(${venta.id})" title="Ver">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-warning" onclick="editarVenta(${venta.id})" title="Editar">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-danger" onclick="eliminarVenta(${venta.id})" title="Eliminar">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Error cargando ventas:', error);
+        document.getElementById('ventas-table').innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center">
+              <i class="fas fa-exclamation-triangle"></i>
+              <p>Error al cargar ventas</p>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    // Cargar clientes para select
+    async function loadClientes() {
+      try {
+        const response = await api.getClientes();
+        const clientes = response.clientes || [];
+        
+        const select = document.getElementById('venta-cliente');
+        select.innerHTML = '<option value="">Seleccionar cliente...</option>';
+        
+        clientes.forEach(cliente => {
+          const option = document.createElement('option');
+          option.value = cliente.id;
+          option.textContent = cliente.nombre;
+          select.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Error cargando clientes:', error);
+      }
+    }
+
+    // Establecer fecha por defecto
+    function setDefaultFecha() {
+      const now = new Date();
+      const fechaLocal = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+      document.getElementById('venta-fecha').value = fechaLocal.toISOString().slice(0, 16);
+    }
+
+    // Abrir modal
+    function openModal() {
+      currentEditId = null;
+      document.getElementById('modal-title').textContent = 'Nueva Venta';
+      document.getElementById('venta-form').reset();
+      detalles = [];
+      updateDetallesTable();
+      calculateTotals();
+      setDefaultFecha();
+      document.getElementById('modal-venta').classList.add('show');
+    }
+
+    // Cerrar modal
+    function closeModal() {
+      document.getElementById('modal-venta').classList.remove('show');
+    }
+
+    // Actualizar campos de pago
+    function updatePagoFields() {
+      const metodo = document.getElementById('venta-pago').value;
+      const pagoMixto = document.getElementById('pago-mixto');
+      
+      if (metodo === 'mixto') {
+        pagoMixto.style.display = 'block';
+      } else {
+        pagoMixto.style.display = 'none';
+      }
+      
+      calculateTotals();
+    }
+
+    // Agregar detalle
+    function addDetalle() {
+      const detalle = {
+        id_repuesto: '',
+        nombre_producto: '',
+        descripcion: '',
+        cantidad: 1,
+        precio_unitario: 0,
+        descuento: 0,
+        subtotal: 0
+      };
+      detalles.push(detalle);
+      updateDetallesTable();
+    }
+
+    // Actualizar tabla de detalles
+    function updateDetallesTable() {
+      const tbody = document.getElementById('detalles-tbody');
+      tbody.innerHTML = '';
+      
+      if (detalles.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center">No hay productos agregados</td></tr>';
+        return;
+      }
+      
+      detalles.forEach((detalle, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>
+            <select onchange="updateDetalle(${index}, 'id_repuesto', this.value)">
+              <option value="">Seleccionar producto...</option>
+            </select>
+          </td>
+          <td><input type="text" value="${detalle.descripcion}" onchange="updateDetalle(${index}, 'descripcion', this.value)" placeholder="Descripción"></td>
+          <td><input type="number" value="${detalle.cantidad}" min="1" onchange="updateDetalle(${index}, 'cantidad', this.value)"></td>
+          <td><input type="number" value="${detalle.precio_unitario}" min="0" step="0.01" onchange="updateDetalle(${index}, 'precio_unitario', this.value)"></td>
+          <td><input type="number" value="${detalle.descuento}" min="0" step="0.01" onchange="updateDetalle(${index}, 'descuento', this.value)"></td>
+          <td>$${formatCurrency(detalle.subtotal)}</td>
+          <td>
+            <button type="button" class="btn btn-sm btn-danger" onclick="removeDetalle(${index})">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+        
+        // Cargar productos en el select
+        if (detalle.id_repuesto) {
+          row.querySelector('select').value = detalle.id_repuesto;
+        }
+      });
+      
+      // Cargar productos en todos los selects
+      loadProductosEnSelects();
+    }
+
+    // Cargar productos en los selects
+    async function loadProductosEnSelects() {
+      try {
+        const response = await api.getInventario();
+        const productos = response.inventario || [];
+        
+        document.querySelectorAll('#detalles-tbody select').forEach(select => {
+          const currentValue = select.value;
+          select.innerHTML = '<option value="">Seleccionar producto...</option>';
+          
+          productos.filter(p => p.stock_actual > 0).forEach(producto => {
+            const option = document.createElement('option');
+            option.value = producto.id;
+            option.textContent = `${producto.nombre} (Stock: ${producto.stock_actual})`;
+            select.appendChild(option);
+          });
+          
+          if (currentValue) {
+            select.value = currentValue;
+          }
+        });
+      } catch (error) {
+        console.error('Error cargando productos:', error);
+      }
+    }
+
+    // Actualizar detalle
+    async function updateDetalle(index, field, value) {
+      if (field === 'cantidad' || field === 'precio_unitario' || field === 'descuento') {
+        detalles[index][field] = parseFloat(value) || 0;
+      } else {
+        detalles[index][field] = value;
+        
+        // Si se seleccionó un producto, cargar sus datos
+        if (field === 'id_repuesto' && value) {
+          try {
+            const response = await api.getRepuesto(value);
+            const producto = response.repuesto;
+            detalles[index].nombre_producto = producto.nombre;
+            detalles[index].precio_unitario = producto.precio_venta;
+            detalles[index].descripcion = producto.descripcion || '';
+            updateDetallesTable();
+          } catch (error) {
+            console.error('Error cargando producto:', error);
+          }
+          return;
+        }
+      }
+      
+      // Calcular subtotal
+      const { cantidad, precio_unitario, descuento } = detalles[index];
+      detalles[index].subtotal = (cantidad * precio_unitario) - descuento;
+      
+      updateDetallesTable();
+      calculateTotals();
+    }
+
+    // Eliminar detalle
+    function removeDetalle(index) {
+      detalles.splice(index, 1);
+      updateDetallesTable();
+      calculateTotals();
+    }
+
+    // Calcular totales
+    function calculateTotals() {
+      const subtotal = detalles.reduce((sum, d) => sum + d.subtotal, 0);
+      const descuentoGeneral = parseFloat(document.getElementById('descuento-general').value) || 0;
+      const subtotalConDescuento = subtotal - descuentoGeneral;
+      const iva = subtotalConDescuento * 0.12;
+      const total = subtotalConDescuento + iva;
+      
+      document.getElementById('subtotal').textContent = `$${formatCurrency(subtotal)}`;
+      document.getElementById('iva').textContent = `$${formatCurrency(iva)}`;
+      document.getElementById('total').textContent = `$${formatCurrency(total)}`;
+    }
+
+    // Guardar venta
+    async function saveVenta(event) {
+      event.preventDefault();
+      
+      try {
+        if (detalles.length === 0) {
+          alert('Debe agregar al menos un producto a la venta');
+          return;
+        }
+        
+        const metodoPago = document.getElementById('venta-pago').value;
+        let pagos = {};
+        
+        if (metodoPago === 'mixto') {
+          pagos = {
+            efectivo: parseFloat(document.getElementById('pago-efectivo').value) || 0,
+            tarjeta: parseFloat(document.getElementById('pago-tarjeta').value) || 0,
+            transferencia: parseFloat(document.getElementById('pago-transferencia').value) || 0
+          };
+        }
+        
+        const data = {
+          id_cliente: document.getElementById('venta-cliente').value,
+          numero_factura: document.getElementById('venta-factura').value,
+          fecha_venta: document.getElementById('venta-fecha').value,
+          metodo_pago: metodoPago,
+          detalles: detalles,
+          descuento_general: parseFloat(document.getElementById('descuento-general').value) || 0,
+          notas: document.getElementById('venta-notas').value,
+          pagos: pagos
+        };
+        
+        if (currentEditId) {
+          await api.updateVenta(currentEditId, data);
+        } else {
+          await api.createVenta(data);
+        }
+        
+        closeModal();
+        loadVentas();
+        loadEstadisticas();
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    }
+
+    // Ver venta
+    async function verVenta(id) {
+      try {
+        const response = await api.getVenta(id);
+        const { venta, detalles } = response;
+        
+        const content = document.getElementById('ver-venta-content');
+        content.innerHTML = `
+          <div class="venta-detalles">
+            <div class="detalle-row">
+              <strong>N° Factura:</strong> ${venta.numero_factura}
+            </div>
+            <div class="detalle-row">
+              <strong>Cliente:</strong> ${venta.cliente_nombre || 'N/A'}
+            </div>
+            <div class="detalle-row">
+              <strong>Fecha:</strong> ${formatDate(venta.fecha_venta)}
+            </div>
+            <div class="detalle-row">
+              <strong>Método Pago:</strong> <span class="badge badge-${venta.metodo_pago}">${getMetodoPagoLabel(venta.metodo_pago)}</span>
+            </div>
+            <div class="detalle-row">
+              <strong>Estado:</strong> <span class="badge badge-${venta.estado}">${getEstadoLabel(venta.estado)}</span>
+            </div>
+            <div class="detalle-row">
+              <strong>Vendedor:</strong> ${venta.vendedor_nombre || 'N/A'}
+            </div>
+            
+            <h4>Productos Vendidos:</h4>
+            <table class="detalles-table">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Descripción</th>
+                  <th>Cantidad</th>
+                  <th>Precio</th>
+                  <th>Descuento</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${detalles.map(d => `
+                  <tr>
+                    <td>${d.nombre_producto}</td>
+                    <td>${d.descripcion}</td>
+                    <td>${d.cantidad}</td>
+                    <td>$${formatCurrency(d.precio_unitario)}</td>
+                    <td>$${formatCurrency(d.descuento)}</td>
+                    <td>$${formatCurrency(d.subtotal)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+            
+            <div class="totales-section">
+              <div class="totales-row">
+                <strong>Subtotal:</strong> $${formatCurrency(venta.subtotal)}
+              </div>
+              <div class="totales-row">
+                <strong>Descuento:</strong> $${formatCurrency(venta.descuento_general || 0)}
+              </div>
+              <div class="totales-row">
+                <strong>IVA:</strong> $${formatCurrency(venta.impuesto_valor)}
+              </div>
+              <div class="totales-row total">
+                <strong>Total:</strong> $${formatCurrency(venta.total)}
+              </div>
+            </div>
+            
+            ${venta.notas ? `<div class="detalle-row"><strong>Notas:</strong> ${venta.notas}</div>` : ''}
+          </div>
+        `;
+        
+        document.getElementById('modal-ver').classList.add('show');
+        
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    }
+
+    // Editar venta
+    async function editarVenta(id) {
+      try {
+        const response = await api.getVenta(id);
+        const { venta, detalles } = response;
+        
+        currentEditId = id;
+        document.getElementById('modal-title').textContent = 'Editar Venta';
+        
+        document.getElementById('venta-cliente').value = venta.id_cliente;
+        document.getElementById('venta-factura').value = venta.numero_factura;
+        document.getElementById('venta-fecha').value = venta.fecha_venta;
+        document.getElementById('venta-pago').value = venta.metodo_pago;
+        document.getElementById('venta-notas').value = venta.notas || '';
+        document.getElementById('descuento-general').value = venta.descuento_general || 0;
+        
+        detalles = detalles.map(d => ({
+          id_repuesto: d.id_repuesto,
+          nombre_producto: d.nombre_producto,
+          descripcion: d.descripcion,
+          cantidad: d.cantidad,
+          precio_unitario: d.precio_unitario,
+          descuento: d.descuento,
+          subtotal: d.subtotal
+        }));
+        
+        updatePagoFields();
+        updateDetallesTable();
+        calculateTotals();
+        document.getElementById('modal-venta').classList.add('show');
+        
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    }
+
+    // Eliminar venta
+    async function eliminarVenta(id) {
+      if (!confirm('¿Estás seguro de eliminar esta venta?')) return;
+      
+      try {
+        await api.deleteVenta(id);
+        loadVentas();
+        loadEstadisticas();
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    }
+
+    // Imprimir factura
+    function imprimirFactura() {
+      window.print();
+    }
+
+    // Funciones auxiliares
+    function getEstadoLabel(estado) {
+      const labels = {
+        pendiente: 'Pendiente',
+        pagada: 'Pagada',
+        cancelada: 'Cancelada'
+      };
+      return labels[estado] || estado;
+    }
+
+    function getMetodoPagoLabel(metodo) {
+      const labels = {
+        efectivo: 'Efectivo',
+        tarjeta: 'Tarjeta',
+        transferencia: 'Transferencia',
+        mixto: 'Mixto'
+      };
+      return labels[metodo] || metodo;
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return 'N/A';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function formatCurrency(amount) {
+      return parseFloat(amount || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+  </script>
+</body>
+</html>

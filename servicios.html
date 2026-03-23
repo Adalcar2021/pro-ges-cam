@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAMSEG - Servicios</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <i class="fas fa-shield-halved"></i>
+          <span>CAMSEG</span>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Menú Principal</div>
+          <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-house"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="clientes.html" class="nav-item">
+            <i class="fas fa-users"></i>
+            <span>Clientes</span>
+          </a>
+          <a href="agenda.html" class="nav-item">
+            <i class="fas fa-calendar-days"></i>
+            <span>Agenda</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Servicios</div>
+          <a href="servicios.html" class="nav-item active">
+            <i class="fas fa-list"></i>
+            <span>Todos</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Gestión</div>
+          <a href="cotizaciones.html" class="nav-item">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <span>Cotizaciones</span>
+          </a>
+          <a href="inventarios.html" class="nav-item">
+            <i class="fas fa-boxes"></i>
+            <span>Inventario</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Usuario</div>
+          <div class="nav-item">
+            <i class="fas fa-user"></i>
+            <span id="user-name">Cargando...</span>
+          </div>
+          <a href="#" class="nav-item" id="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Cerrar Sesión</span>
+          </a>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="user-initials">U</div>
+          <div class="user-details">
+            <div class="user-name" id="user-name">Usuario</div>
+            <div class="user-role" id="user-role">Rol</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="content-header">
+        <div class="header-title">
+          <h1><i class="fas fa-list"></i> Servicios</h1>
+          <p>Gestión de servicios técnicos</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="openModal()">
+            <i class="fas fa-plus"></i>
+            Nuevo Servicio
+          </button>
+        </div>
+      </header>
+
+      <!-- Filters -->
+      <div class="filters-section">
+        <div class="filter-group">
+          <label>Estado:</label>
+          <select id="filter-estado" onchange="loadServicios()">
+            <option value="">Todos</option>
+            <option value="programado">Programado</option>
+            <option value="en_progreso">En Progreso</option>
+            <option value="completado">Completado</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label>Tipo:</label>
+          <select id="filter-tipo" onchange="loadServicios()">
+            <option value="">Todos</option>
+            <option value="instalacion">Instalación</option>
+            <option value="mantenimiento">Mantenimiento</option>
+            <option value="reparacion">Reparación</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label>Buscar:</label>
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search-input" placeholder="Buscar servicios..." onkeyup="if(event.key==='Enter') loadServicios()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Services Table -->
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Cliente</th>
+              <th>Tipo</th>
+              <th>Estado</th>
+              <th>Fecha Programada</th>
+              <th>Técnico</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="servicios-table">
+            <tr>
+              <td colspan="6" class="text-center">
+                <i class="fas fa-spinner fa-spin"></i> Cargando servicios...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Servicio -->
+  <div id="modal-servicio" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Nuevo Servicio</h3>
+        <button class="modal-close" onclick="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <form id="servicio-form" onsubmit="saveServicio(event)">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Cliente *</label>
+              <select id="servicio-cliente" required>
+                <option value="">Seleccionar cliente...</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Tipo Servicio *</label>
+              <select id="servicio-tipo" required onchange="updateSubtipoOptions()">
+                <option value="">Seleccionar...</option>
+                <option value="instalacion">Instalación</option>
+                <option value="mantenimiento">Mantenimiento</option>
+                <option value="reparacion">Reparación</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Subtipo</label>
+              <select id="servicio-subtipo">
+                <option value="">Seleccionar tipo primero...</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Prioridad</label>
+              <select id="servicio-prioridad">
+                <option value="baja">Baja</option>
+                <option value="media" selected>Media</option>
+                <option value="alta">Alta</option>
+                <option value="urgente">Urgente</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Fecha Programada *</label>
+              <input type="datetime-local" id="servicio-fecha" required>
+            </div>
+            
+            <div class="form-group">
+              <label>Duración Estimada (min)</label>
+              <input type="number" id="servicio-duracion" min="30" value="60">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Dirección Servicio</label>
+            <input type="text" id="servicio-direccion" placeholder="Dirección completa">
+          </div>
+          
+          <div class="form-group">
+            <label>Sistema Instalado</label>
+            <input type="text" id="servicio-sistema" placeholder="Ej: Cámaras HD 8 canales">
+          </div>
+          
+          <div class="form-group">
+            <label>Cantidad Cámaras</label>
+            <input type="number" id="servicio-camaras" min="0" value="0">
+          </div>
+          
+          <div class="form-group">
+            <label>Descripción del Trabajo</label>
+            <textarea id="servicio-descripcion" rows="3" placeholder="Descripción detallada del trabajo a realizar"></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label>Diagnóstico</label>
+            <textarea id="servicio-diagnostico" rows="3" placeholder="Diagnóstico del problema (si aplica)"></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label>Trabajo Realizado</label>
+            <textarea id="servicio-trabajo" rows="3" placeholder="Descripción de lo que se realizó"></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label>Observaciones</label>
+            <textarea id="servicio-observaciones" rows="2" placeholder="Observaciones adicionales"></textarea>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Estado</label>
+              <select id="servicio-estado">
+                <option value="programado">Programado</option>
+                <option value="en_progreso">En Progreso</option>
+                <option value="completado">Completado</option>
+                <option value="cancelado">Cancelado</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Calificación</label>
+              <select id="servicio-calificacion">
+                <option value="">Sin calificar</option>
+                <option value="1">⭐</option>
+                <option value="2">⭐⭐</option>
+                <option value="3">⭐⭐⭐</option>
+                <option value="4">⭐⭐⭐⭐</option>
+                <option value="5">⭐⭐⭐⭐⭐</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="servicio-checklist">
+                Checklist Completo
+              </label>
+            </div>
+            
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="servicio-instruido">
+                Cliente Instruido
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i>
+            Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Ver Servicio -->
+  <div id="modal-ver" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Detalles del Servicio</h3>
+        <button class="modal-close" onclick="closeModalVer()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body" id="ver-servicio-content">
+        <!-- Content loaded dynamically -->
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModalVer()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    let currentEditId = null;
+
+    // Cargar servicios al iniciar
+    document.addEventListener('DOMContentLoaded', () => {
+      loadServicios();
+      loadClientes();
+    });
+
+    // Cargar lista de servicios
+    async function loadServicios() {
+      try {
+        const estado = document.getElementById('filter-estado').value;
+        const tipo = document.getElementById('filter-tipo').value;
+        const search = document.getElementById('search-input').value;
+        
+        const response = await api.getServicios({ estado, tipo, search });
+        const servicios = response.servicios || [];
+        
+        const tbody = document.getElementById('servicios-table');
+        tbody.innerHTML = '';
+        
+        if (servicios.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="6" class="text-center">
+                <i class="fas fa-inbox"></i>
+                <p>No se encontraron servicios</p>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+        
+        servicios.forEach(servicio => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${servicio.codigo_servicio}</td>
+            <td>${servicio.cliente_nombre || 'N/A'}</td>
+            <td><span class="badge badge-${servicio.tipo_servicio}">${getTipoLabel(servicio.tipo_servicio)}</span></td>
+            <td><span class="badge badge-${servicio.estado}">${getEstadoLabel(servicio.estado)}</span></td>
+            <td>${formatDate(servicio.fecha_programada)}</td>
+            <td>${servicio.tecnico_nombre || 'N/A'}</td>
+            <td>
+              <button class="btn btn-sm btn-info" onclick="verServicio(${servicio.id})" title="Ver">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-warning" onclick="editarServicio(${servicio.id})" title="Editar">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-danger" onclick="eliminarServicio(${servicio.id})" title="Eliminar">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Error cargando servicios:', error);
+        document.getElementById('servicios-table').innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center">
+              <i class="fas fa-exclamation-triangle"></i>
+              <p>Error al cargar servicios</p>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    // Cargar clientes para select
+    async function loadClientes() {
+      try {
+        const response = await api.getClientes();
+        const clientes = response.clientes || [];
+        
+        const select = document.getElementById('servicio-cliente');
+        select.innerHTML = '<option value="">Seleccionar cliente...</option>';
+        
+        clientes.forEach(cliente => {
+          const option = document.createElement('option');
+          option.value = cliente.id;
+          option.textContent = cliente.nombre;
+          select.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Error cargando clientes:', error);
+      }
+    }
+
+    // Abrir modal
+    function openModal() {
+      currentEditId = null;
+      document.getElementById('modal-title').textContent = 'Nuevo Servicio';
+      document.getElementById('servicio-form').reset();
+      document.getElementById('modal-servicio').classList.add('show');
+    }
+
+    // Cerrar modal
+    function closeModal() {
+      document.getElementById('modal-servicio').classList.remove('show');
+    }
+
+    // Guardar servicio
+    async function saveServicio(event) {
+      event.preventDefault();
+      
+      try {
+        const data = {
+          id_cliente: document.getElementById('servicio-cliente').value,
+          tipo_servicio: document.getElementById('servicio-tipo').value,
+          subtipo_mantenimiento: document.getElementById('servicio-subtipo').value,
+          fecha_programada: document.getElementById('servicio-fecha').value,
+          duracion_estimada: parseInt(document.getElementById('servicio-duracion').value),
+          prioridad: document.getElementById('servicio-prioridad').value,
+          estado: document.getElementById('servicio-estado').value,
+          direccion_servicio: document.getElementById('servicio-direccion').value,
+          sistema_instalado: document.getElementById('servicio-sistema').value,
+          cantidad_camaras: parseInt(document.getElementById('servicio-camaras').value),
+          descripcion_trabajo: document.getElementById('servicio-descripcion').value,
+          diagnostico: document.getElementById('servicio-diagnostico').value,
+          trabajo_realizado: document.getElementById('servicio-trabajo').value,
+          observaciones: document.getElementById('servicio-observaciones').value,
+          checklist_completo: document.getElementById('servicio-checklist').checked,
+          cliente_instruido: document.getElementById('servicio-instruido').checked,
+          calificacion: parseInt(document.getElementById('servicio-calificacion').value) || null
+        };
+        
+        if (currentEditId) {
+          await api.updateServicio(currentEditId, data);
+        } else {
+          await api.createServicio(data);
+        }
+        
+        closeModal();
+        loadServicios();
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    }
+
+    // Editar servicio
+    async function editarServicio(id) {
+      try {
+        const response = await api.getServicio(id);
+        const s = response.servicio;
+        
+        currentEditId = id;
+        document.getElementById('modal-title').textContent = 'Editar Servicio';
+        
+        document.getElementById('servicio-cliente').value = s.id_cliente;
+        document.getElementById('servicio-tipo').value = s.tipo_servicio;
+        updateSubtipoOptions();
+        document.getElementById('servicio-subtipo').value = s.subtipo_mantenimiento || '';
+        document.getElementById('servicio-fecha').value = s.fecha_programada;
+        document.getElementById('servicio-duracion').value = s.duracion_estimada || 60;
+        document.getElementById('servicio-prioridad').value = s.prioridad || 'media';
+        document.getElementById('servicio-estado').value = s.estado;
+        document.getElementById('servicio-direccion').value = s.direccion_servicio || '';
+        document.getElementById('servicio-sistema').value = s.sistema_instalado || '';
+        document.getElementById('servicio-camaras').value = s.cantidad_camaras || 0;
+        document.getElementById('servicio-descripcion').value = s.descripcion_trabajo || '';
+        document.getElementById('servicio-diagnostico').value = s.diagnostico || '';
+        document.getElementById('servicio-trabajo').value = s.trabajo_realizado || '';
+        document.getElementById('servicio-observaciones').value = s.observaciones || '';
+        document.getElementById('servicio-checklist').checked = s.checklist_completo;
+        document.getElementById('servicio-instruido').checked = s.cliente_instruido;
+        document.getElementById('servicio-calificacion').value = s.calificacion || '';
+        
+        document.getElementById('modal-servicio').classList.add('show');
+        
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    }
+
+    // Ver servicio
+    async function verServicio(id) {
+      try {
+        const response = await api.getServicio(id);
+        const servicio = response.servicio;
+        
+        const content = document.getElementById('ver-servicio-content');
+        content.innerHTML = `
+          <div class="servicio-detalles">
+            <div class="detalle-row">
+              <strong>Código:</strong> ${servicio.codigo_servicio}
+            </div>
+            <div class="detalle-row">
+              <strong>Cliente:</strong> ${servicio.cliente_nombre || 'N/A'}
+            </div>
+            <div class="detalle-row">
+              <strong>Tipo:</strong> ${getTipoLabel(servicio.tipo_servicio)}
+            </div>
+            <div class="detalle-row">
+              <strong>Estado:</strong> <span class="badge badge-${servicio.estado}">${getEstadoLabel(servicio.estado)}</span>
+            </div>
+            <div class="detalle-row">
+              <strong>Fecha Programada:</strong> ${formatDate(servicio.fecha_programada)}
+            </div>
+            <div class="detalle-row">
+              <strong>Dirección:</strong> ${servicio.direccion_servicio || 'N/A'}
+            </div>
+            <div class="detalle-row">
+              <strong>Descripción:</strong> ${servicio.descripcion_trabajo || 'N/A'}
+            </div>
+            <div class="detalle-row">
+              <strong>Trabajo Realizado:</strong> ${servicio.trabajo_realizado || 'N/A'}
+            </div>
+            <div class="detalle-row">
+              <strong>Observaciones:</strong> ${servicio.observaciones || 'N/A'}
+            </div>
+          </div>
+        `;
+        
+        document.getElementById('modal-ver').classList.add('show');
+        
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    }
+
+    // Eliminar servicio
+    async function eliminarServicio(id) {
+      if (!confirm('¿Estás seguro de eliminar este servicio?')) return;
+      
+      try {
+        await api.deleteServicio(id);
+        loadServicios();
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    }
+
+    // Actualizar opciones de subtipo
+    function updateSubtipoOptions() {
+      const tipo = document.getElementById('servicio-tipo').value;
+      const subtipoSelect = document.getElementById('servicio-subtipo');
+      
+      subtipoSelect.innerHTML = '<option value="">Seleccionar...</option>';
+      
+      const options = {
+        instalacion: ['Residencial', 'Comercial', 'Industrial'],
+        mantenimiento: ['Preventivo', 'Correctivo', 'Predictivo'],
+        reparacion: ['Diagnóstico', 'Reparación Menor', 'Reparación Mayor']
+      };
+      
+      if (options[tipo]) {
+        options[tipo].forEach(opcion => {
+          const option = document.createElement('option');
+          option.value = opcion.toLowerCase().replace(' ', '_');
+          option.textContent = opcion;
+          subtipoSelect.appendChild(option);
+        });
+      }
+    }
+
+    // Funciones auxiliares
+    function getTipoLabel(tipo) {
+      const labels = {
+        instalacion: 'Instalación',
+        mantenimiento: 'Mantenimiento',
+        reparacion: 'Reparación'
+      };
+      return labels[tipo] || tipo;
+    }
+
+    function getEstadoLabel(estado) {
+      const labels = {
+        programado: 'Programado',
+        en_progreso: 'En Progreso',
+        completado: 'Completado',
+        cancelado: 'Cancelado'
+      };
+      return labels[estado] || estado;
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return 'N/A';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+  </script>
+</body>
+</html>

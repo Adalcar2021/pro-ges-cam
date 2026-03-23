@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAMSEG - Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <i class="fas fa-shield-halved"></i>
+          <span>CAMSEG</span>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Menú Principal</div>
+          <a href="dashboard.html" class="nav-item active">
+            <i class="fas fa-house"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="clientes.html" class="nav-item">
+            <i class="fas fa-users"></i>
+            <span>Clientes</span>
+          </a>
+          <a href="agenda.html" class="nav-item">
+            <i class="fas fa-calendar-days"></i>
+            <span>Agenda</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Servicios</div>
+          <a href="servicios.html" class="nav-item">
+            <i class="fas fa-video"></i>
+            <span>Instalaciones</span>
+          </a>
+          <a href="servicios.html?tipo=mantenimiento" class="nav-item">
+            <i class="fas fa-wrench"></i>
+            <span>Mantenimientos</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Gestión</div>
+          <a href="cotizaciones.html" class="nav-item">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <span>Cotizaciones</span>
+          </a>
+          <a href="inventario.html" class="nav-item">
+            <i class="fas fa-boxes-stacked"></i>
+            <span>Inventario</span>
+          </a>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="user-initials">AC</div>
+          <div class="user-details">
+            <div class="user-name" id="user-name">Adalberto Cárdenas</div>
+            <div class="user-role" id="user-role">Técnico</div>
+          </div>
+          <button class="logout-btn" id="logout-btn" title="Cerrar sesión">
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="top-header">
+        <h1 class="page-title">
+          <i class="fas fa-chart-pie"></i>
+          Dashboard
+        </h1>
+        <div class="header-actions">
+          <span class="header-date" id="current-date"></span>
+          <button class="notification-btn">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge" id="notif-count">3</span>
+          </button>
+        </div>
+      </header>
+      
+      <div class="content">
+        <!-- KPIs Simplificados -->
+        <div class="kpi-simple-grid" id="kpi-grid">
+          <div class="kpi-simple-card">
+            <div class="kpi-simple-icon">
+              <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="kpi-simple-content">
+              <div class="kpi-simple-value" id="kpi-servicios">0</div>
+              <div class="kpi-simple-label">Servicios Hoy</div>
+            </div>
+          </div>
+          
+          <div class="kpi-simple-card">
+            <div class="kpi-simple-icon">
+              <i class="fas fa-wrench"></i>
+            </div>
+            <div class="kpi-simple-content">
+              <div class="kpi-simple-value" id="kpi-mantenimientos">0</div>
+              <div class="kpi-simple-label">Mantenimientos</div>
+            </div>
+          </div>
+          
+          <div class="kpi-simple-card">
+            <div class="kpi-simple-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <div class="kpi-simple-content">
+              <div class="kpi-simple-value" id="kpi-clientes">0</div>
+              <div class="kpi-simple-label">Clientes</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Accesos Rápidos -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="fas fa-bolt"></i>
+              Accesos Rápidos
+            </h3>
+          </div>
+          <div class="card-body">
+            <div class="quick-actions">
+              <a href="clientes.html" class="quick-action">
+                <i class="fas fa-users"></i>
+                <span>Clientes</span>
+              </a>
+              <a href="servicios.html" class="quick-action">
+                <i class="fas fa-wrench"></i>
+                <span>Servicios</span>
+              </a>
+              <a href="cotizaciones.html" class="quick-action">
+                <i class="fas fa-file-invoice"></i>
+                <span>Cotizaciones</span>
+              </a>
+              <a href="inventario.html" class="quick-action">
+                <i class="fas fa-box"></i>
+                <span>Inventario</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Cargar datos del dashboard - versión simplificada
+    async function loadDashboard() {
+      try {
+        // Mostrar datos de ejemplo (funciona sin servidor)
+        document.getElementById('kpi-servicios').textContent = '3';
+        document.getElementById('kpi-mantenimientos').textContent = '5';
+        document.getElementById('kpi-clientes').textContent = '12';
+        document.getElementById('notif-count').textContent = '2';
+        
+        // Intentar cargar datos reales si el servidor está disponible
+        try {
+          const data = await api.getDashboard();
+          if (data && data.kpis) {
+            document.getElementById('kpi-servicios').textContent = data.kpis.servicios_programados || 0;
+            document.getElementById('kpi-mantenimientos').textContent = data.kpis.mantenimientos_pendientes || 0;
+            document.getElementById('kpi-clientes').textContent = data.kpis.clientes_activos || 0;
+          }
+        } catch (serverError) {
+          console.log('Servidor no disponible, usando datos de ejemplo');
+        }
+        
+      } catch (error) {
+        console.error('Error general:', error);
+      }
+    }
+    
+    // Cargar al iniciar
+    document.addEventListener('DOMContentLoaded', loadDashboard);
+  </script>
+</body>
+</html>

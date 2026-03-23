@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAMSEG - Agenda</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <i class="fas fa-shield-halved"></i>
+          <span>CAMSEG</span>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Menú Principal</div>
+          <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-house"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="clientes.html" class="nav-item">
+            <i class="fas fa-users"></i>
+            <span>Clientes</span>
+          </a>
+          <a href="agenda.html" class="nav-item active">
+            <i class="fas fa-calendar-days"></i>
+            <span>Agenda</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Servicios</div>
+          <a href="servicios.html" class="nav-item">
+            <i class="fas fa-video"></i>
+            <span>Instalaciones</span>
+          </a>
+          <a href="servicios.html?tipo=mantenimiento" class="nav-item">
+            <i class="fas fa-wrench"></i>
+            <span>Mantenimientos</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Gestión</div>
+          <a href="cotizaciones.html" class="nav-item">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <span>Cotizaciones</span>
+          </a>
+          <a href="inventario.html" class="nav-item">
+            <i class="fas fa-boxes-stacked"></i>
+            <span>Inventario</span>
+          </a>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="user-initials">AC</div>
+          <div class="user-details">
+            <div class="user-name" id="user-name">Adalberto Cárdenas</div>
+            <div class="user-role" id="user-role">Técnico</div>
+          </div>
+          <button class="logout-btn" id="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="top-header">
+        <h1 class="page-title">
+          <i class="fas fa-calendar-days"></i>
+          Agenda
+        </h1>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="openModalNuevoServicio()">
+            <i class="fas fa-plus"></i>
+            Nuevo Servicio
+          </button>
+        </div>
+      </header>
+      
+      <div class="content">
+        <!-- Leyenda -->
+        <div class="card mb-4">
+          <div class="card-body">
+            <div class="flex items-center gap-6 flex-wrap">
+              <span class="font-medium">Leyenda:</span>
+              <span class="badge badge-blue">
+                <i class="fas fa-video"></i> Instalación
+              </span>
+              <span class="badge badge-green">
+                <i class="fas fa-wrench"></i> Mantenimiento
+              </span>
+              <span class="badge badge-orange">
+                <i class="fas fa-magnifying-glass"></i> Revisión
+              </span>
+              <span class="badge badge-red">
+                <i class="fas fa-screwdriver-wrench"></i> Reparación
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Navegación de calendario -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <div class="agenda-nav">
+              <button onclick="cambiarMes(-1)">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <button class="today-btn" onclick="irHoy()">Hoy</button>
+              <button onclick="cambiarMes(1)">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+            <h3 class="card-title" id="mes-actual">Enero 2025</h3>
+            <div class="flex gap-2">
+              <button class="btn btn-sm btn-secondary" onclick="cambiarVista('mes')">Mes</button>
+              <button class="btn btn-sm btn-secondary" onclick="cambiarVista('semana')">Semana</button>
+              <button class="btn btn-sm btn-secondary" onclick="cambiarVista('dia')">Día</button>
+            </div>
+          </div>
+          
+          <!-- Vista Mes -->
+          <div id="vista-mes">
+            <div class="agenda-grid">
+              <div class="agenda-day-header">Dom</div>
+              <div class="agenda-day-header">Lun</div>
+              <div class="agenda-day-header">Mar</div>
+              <div class="agenda-day-header">Mié</div>
+              <div class="agenda-day-header">Jue</div>
+              <div class="agenda-day-header">Vie</div>
+              <div class="agenda-day-header">Sáb</div>
+            </div>
+            <div class="agenda-grid" id="dias-calendario">
+              <!-- Días generados dinámicamente -->
+            </div>
+          </div>
+          
+          <!-- Vista Semana -->
+          <div id="vista-semana" style="display:none">
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Hora</th>
+                    <th>Lunes</th>
+                    <th>Martes</th>
+                    <th>Miércoles</th>
+                    <th>Jueves</th>
+                    <th>Viernes</th>
+                    <th>Sábado</th>
+                    <th>Domingo</th>
+                  </tr>
+                </thead>
+                <tbody id="semana-grid">
+                  <!-- Generado dinámicamente -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Panel lateral - Día seleccionado -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="fas fa-list"></i>
+              <span id="dia-seleccionado">Servicios de Hoy</span>
+            </h3>
+          </div>
+          <div class="card-body p-0" id="eventos-dia">
+            <div class="loading">
+              <div class="spinner"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <!-- Modal Nuevo Servicio -->
+  <div class="modal-overlay" id="modal-servicio">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <i class="fas fa-calendar-plus"></i>
+          Nuevo Servicio
+        </h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="servicio-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">Cliente</label>
+              <select class="form-control" id="servicio-cliente" required onchange="cargarDireccionCliente()">
+                <option value="">Seleccionar cliente...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label required">Tipo de Servicio</label>
+              <select class="form-control" id="servicio-tipo" required>
+                <option value="instalacion">Instalación</option>
+                <option value="mantenimiento">Mantenimiento</option>
+                <option value="revision">Revisión</option>
+                <option value="reparacion">Reparación</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">Fecha</label>
+              <input type="date" class="form-control" id="servicio-fecha" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label required">Hora</label>
+              <input type="time" class="form-control" id="servicio-hora" required>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Duración estimada (minutos)</label>
+              <input type="number" class="form-control" id="servicio-duracion" value="60">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Prioridad</label>
+              <select class="form-control" id="servicio-prioridad">
+                <option value="baja">Baja</option>
+                <option value="media" selected>Media</option>
+                <option value="alta">Alta</option>
+                <option value="urgente">Urgente</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Dirección del servicio</label>
+            <input type="text" class="form-control" id="servicio-direccion">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Sistema a instalar</label>
+            <input type="text" class="form-control" id="servicio-sistema" placeholder="Ej: CCTV 4 cámaras">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Descripción del trabajo</label>
+            <textarea class="form-control" id="servicio-descripcion" rows="3"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarServicio()">
+          <i class="fas fa-save"></i>
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal Ver Servicio -->
+  <div class="modal-overlay" id="modal-ver-servicio">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <i class="fas fa-calendar-check"></i>
+          Detalles del Servicio
+        </h3>
+        <button class="modal-close" onclick="closeModalVer()">&times;</button>
+      </div>
+      <div class="modal-body" id="servicio-detalle">
+        <!-- Contenido dinámico -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModalVer()">Cerrar</button>
+        <button class="btn btn-primary" onclick="irAServicio()">
+          <i class="fas fa-arrow-right"></i>
+          Ir al Servicio
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Variables globales
+    let fechaActual = new Date();
+    let mesActual = fechaActual.getMonth();
+    let anioActual = fechaActual.getFullYear();
+    let vistaActual = 'mes';
+    let serviciosDelMes = [];
+    let servicioSeleccionadoId = null;
+    let clientes = [];
+    
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', async () => {
+      await cargarClientes();
+      await cargarServicios();
+      renderizarCalendario();
+      cargarEventosDia(fechaActual);
+    });
+    
+    // Cargar clientes para el select
+    async function cargarClientes() {
+      try {
+        const data = await api.getClientes({ limite: 100 });
+        clientes = data.clientes;
+        
+        const select = document.getElementById('servicio-cliente');
+        select.innerHTML = '<option value="">Seleccionar cliente...</option>';
+        
+        clientes.forEach(c => {
+          select.innerHTML += `<option value="${c.id}" data-direccion="${c.direccion}">${c.nombre}</option>`;
+        });
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+    
+    // Cargar dirección del cliente
+    function cargarDireccionCliente() {
+      const select = document.getElementById('servicio-cliente');
+      const option = select.options[select.selectedIndex];
+      const direccion = option.dataset.direccion;
+      document.getElementById('servicio-direccion').value = direccion || '';
+    }
+    
+    // Cargar servicios del mes
+    async function cargarServicios() {
+      try {
+        const inicio = new Date(anioActual, mesActual, 1);
+        const fin = new Date(anioActual, mesActual + 1, 0);
+        
+        const data = await api.getServicios({
+          fecha_inicio: inicio.toISOString().split('T')[0],
+          fecha_fin: fin.toISOString().split('T')[0]
+        });
+        
+        serviciosDelMes = data.servicios;
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+    
+    // Renderizar calendario
+    function renderizarCalendario() {
+      document.getElementById('mes-actual').textContent = `${meses[mesActual]} ${anioActual}`;
+      
+      const primerDia = new Date(anioActual, mesActual, 1).getDay();
+      const diasEnMes = new Date(anioActual, mesActual + 1, 0).getDate();
+      const diasMesAnterior = new Date(anioActual, mesActual, 0).getDate();
+      
+      let html = '';
+      let dia = 1;
+      let siguienteMes = 1;
+      
+      // Semanas del mes
+      for (let semana = 0; semana < 6; semana++) {
+        for (let i = 0; i < 7; i++) {
+          let clases = 'agenda-day';
+          let contenido = '';
+          
+          if (semana === 0 && i < primerDia) {
+            // Días del mes anterior
+            const diaAnterior = diasMesAnterior - primerDia + i + 1;
+            clases += ' other-month';
+            contenido = diaAnterior;
+          } else if (dia > diasEnMes) {
+            // Días del siguiente mes
+            clases += ' other-month';
+            contenido = siguienteMes;
+            siguienteMes++;
+          } else {
+            // Días del mes actual
+            const fecha = new Date(anioActual, mesActual, dia);
+            if (esHoy(fecha)) clases += ' today';
+            
+            // Buscar eventos para este día
+            const eventos = serviciosDelMes.filter(s => {
+              const fechaServ = new Date(s.fecha_programada);
+              return fechaServ.getDate() === dia && 
+                     fechaServ.getMonth() === mesActual && 
+                     fechaServ.getFullYear() === anioActual;
+            });
+            
+            if (eventos.length > 0) {
+              eventos.forEach(e => {
+                contenido += `<div class="agenda-event ${e.tipo_servicio}" onclick="verEvento(${e.id}, event)">${e.tipo_servicio}</div>`;
+              });
+            }
+            
+            if (contenido === '') contenido = dia;
+            else contenido = `<div class="agenda-day-number">${dia}</div>` + contenido;
+            
+            dia++;
+          }
+          
+          html += `<div class="${clases}" onclick="selccionarDia(${semana}, ${i})">${contenido}</div>`;
+        }
+        
+        // Verificar si ya terminamos el mes
+        if (dia > diasEnMes && semana > 4) break;
+      }
+      
+      document.getElementById('dias-calendario').innerHTML = html;
+    }
+    
+    // Verificar si es hoy
+    function esHoy(fecha) {
+      const hoy = new Date();
+      return fecha.getDate() === hoy.getDate() && 
+             fecha.getMonth() === hoy.getMonth() && 
+             fecha.getFullYear() === hoy.getFullYear();
+    }
+    
+    // Cambiar mes
+    function cambiarMes(direccion) {
+      mesActual += direccion;
+      if (mesActual > 11) {
+        mesActual = 0;
+        anioActual++;
+      } else if (mesActual < 0) {
+        mesActual = 11;
+        anioActual--;
+      }
+      cargarServicios().then(() => {
+        renderizarCalendario();
+      });
+    }
+    
+    // Ir a hoy
+    function irHoy() {
+      mesActual = new Date().getMonth();
+      anioActual = new Date().getFullYear();
+      cargarServicios().then(() => {
+        renderizarCalendario();
+        cargarEventosDia(new Date());
+      });
+    }
+    
+       // Cambiar vista
+    function cambiarVista(vista) {
+      vistaActual = vista;
+      document.getElementById('vista-mes').style.display = vista === 'mes' ? 'grid' : 'none';
+      document.getElementById('vista-semana').style.display = vista === 'semana' ? 'block' : 'none';
+    }
+    
+    // Seleccionar día
+    function seleccionarDia(semana, diaSemana) {
+      // Calcular fecha basada en la posición
+      const primerDia = new Date(anioActual, mesActual, 1).getDay();
+      const diasEnMes = new Date(anioActual, mesActual + 1, 0).getDate();
+      
+      let diaNum = (semana * 7) + diaSemana - primerDia + 1;
+      
+      if (diaNum > 0 && diaNum <= diasEnMes) {
+        const fechaSeleccionada = new Date(anioActual, mesActual, diaNum);
+        cargarEventosDia(fechaSeleccionada);
+      }
+    }
+    
+    // Cargar eventos del día
+    async function cargarEventosDia(fecha) {
+      const fechaStr = fecha.toISOString().split('T')[0];
+      
+      // Actualizar título
+      const esHoy = fechaStr === new Date().toISOString().split('T')[0];
+      document.getElementById('dia-seleccionado').textContent = 
+        esHoy ? 'Servicios de Hoy' : `${diasSemana[fecha.getDay()]}, ${fecha.getDate()} de ${meses[fecha.getMonth()]}`;
+      
+      try {
+        const data = await api.getAgenda(fechaStr);
+        renderizarEventosDia(data.eventos);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+    
+    // Renderizar eventos del día
+    function renderizarEventosDia(eventos) {
+      const container = document.getElementById('eventos-dia');
+      
+      if (!eventos || eventos.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-calendar-xmark"></i>
+            <h3>No hay servicios</h3>
+            <p>No hay servicios programados para este día</p>
+          </div>
+        `;
+        return;
+      }
+      
+      const tipoIcons = {
+        'instalacion': 'fa-video',
+        'mantenimiento': 'fa-wrench',
+        'revision': 'fa-magnifying-glass',
+        'reparacion': 'fa-screwdriver-wrench'
+      };
+      
+      let html = '';
+      eventos.forEach(e => {
+        const hora = new Date(e.fecha_programada).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        
+        html += `
+          <div class="agenda-event-item ${e.tipo_servicio}" onclick="verEvento(${e.id}, event)">
+            <div class="flex justify-between items-center mb-2">
+              <span class="agenda-event-time">${hora}</span>
+              <span class="badge badge-${e.estado === 'completado' ? 'green' : 'blue'}">${e.estado}</span>
+            </div>
+            <div class="agenda-event-title">
+              <i class="fas ${tipoIcons[e.tipo_servicio]}"></i>
+              ${e.cliente_nombre}
+            </div>
+            <div class="agenda-event-address">
+              <i class="fas fa-location-dot"></i>
+              ${e.cliente_direccion}
+            </div>
+            <div class="flex gap-2 mt-3">
+              <a href="tel:${e.cliente_telefono}" class="btn btn-sm btn-secondary" onclick="event.stopPropagation()">
+                <i class="fas fa-phone"></i>
+              </a>
+              <button class="btn btn-sm btn-primary" onclick="verEvento(${e.id}, event); event.stopPropagation()">
+                Ver Detalle
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      
+      container.innerHTML = html;
+    }
+    
+    // Ver evento
+    function verEvento(id, event) {
+      if (event) event.stopPropagation();
+      
+      servicioSeleccionadoId = id;
+      const servicio = serviciosDelMes.find(s => s.id === id);
+      
+      if (!servicio) {
+        // Buscar en la API
+        api.getServicio(id).then(data => {
+          mostrarDetalleServicio(data.servicio);
+        });
+      } else {
+        mostrarDetalleServicio(servicio);
+      }
+    }
+    
+    // Mostrar detalle del servicio
+    function mostrarDetalleServicio(s) {
+      const tipoIcons = {
+        'instalacion': 'fa-video',
+        'mantenimiento': 'fa-wrench',
+        'revision': 'fa-magnifying-glass',
+        'reparacion': 'fa-screwdriver-wrench'
+      };
+      
+      const html = `
+        <div class="mb-4">
+          <span class="badge badge-blue badge-lg">
+            <i class="fas ${tipoIcons[s.tipo_servicio]}"></i>
+            ${s.tipo_servicio.charAt(0).toUpperCase() + s.tipo_servicio.slice(1)}
+          </span>
+        </div>
+        
+        <div class="grid grid-2 gap-4 mb-4">
+          <div>
+            <label class="text-muted text-sm">Código</label>
+            <p class="font-semibold">${s.codigo_servicio}</p>
+          </div>
+          <div>
+            <label class="text-muted text-sm">Estado</label>
+            <p><span class="badge badge-${s.estado === 'completado' ? 'green' : 'orange'}">${s.estado}</span></p>
+          </div>
+        </div>
+        
+        <div class="mb-4">
+          <label class="text-muted text-sm">Cliente</label>
+          <p class="font-semibold text-lg">${s.cliente_nombre}</p>
+          <p class="text-sm text-muted">${s.cliente_telefono}</p>
+        </div>
+        
+        <div class="mb-4">
+          <label class="text-muted text-sm">Dirección</label>
+          <p>${s.direccion_servicio || s.cliente_direccion}</p>
+        </div>
+        
+        <div class="grid grid-2 gap-4 mb-4">
+          <div>
+            <label class="text-muted text-sm">Fecha</label>
+            <p>${new Date(s.fecha_programada).toLocaleDateString('es-ES')}</p>
+          </div>
+          <div>
+            <label class="text-muted text-sm">Hora</label>
+            <p>${new Date(s.fecha_programada).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</p>
+          </div>
+        </div>
+        
+        ${s.sistema_instalado ? `
+        <div class="mb-4">
+          <label class="text-muted text-sm">Sistema</label>
+          <p>${s.sistema_instalado}</p>
+        </div>
+        ` : ''}
+      `;
+      
+      document.getElementById('servicio-detalle').innerHTML = html;
+      document.getElementById('modal-ver-servicio').classList.add('show');
+    }
+    
+    // Ir al servicio
+    function irAServicio() {
+      if (servicioSeleccionadoId) {
+        window.location.href = `servicios.html?id=${servicioSeleccionadoId}`;
+      }
+    }
+    
+    // Modal
+    function openModalNuevoServicio() {
+      document.getElementById('servicio-form').reset();
+      document.getElementById('servicio-fecha').value = new Date().toISOString().split('T')[0];
+      document.getElementById('servicio-hora').value = '09:00';
+      document.getElementById('modal-servicio').classList.add('show');
+    }
+    
+    function closeModal() {
+      document.getElementById('modal-servicio').classList.remove('show');
+    }
+    
+    function closeModalVer() {
+      document.getElementById('modal-ver-servicio').classList.remove('show');
+    }
+    
+    // Guardar servicio
+    async function guardarServicio() {
+      const fecha = document.getElementById('servicio-fecha').value;
+      const hora = document.getElementById('servicio-hora').value;
+      
+      const data = {
+        id_cliente: document.getElementById('servicio-cliente').value,
+        tipo_servicio: document.getElementById('servicio-tipo').value,
+        fecha_programada: `${fecha} ${hora}`,
+        duracion_estimada: document.getElementById('servicio-duracion').value,
+        prioridad: document.getElementById('servicio-prioridad').value,
+        direccion_servicio: document.getElementById('servicio-direccion').value,
+        sistema_instalado: document.getElementById('servicio-sistema').value,
+        descripcion_trabajo: document.getElementById('servicio-descripcion').value
+      };
+      
+      if (!data.id_cliente) {
+        alert('Debe seleccionar un cliente');
+        return;
+      }
+      
+      try {
+        await api.createServicio(data);
+        closeModal();
+        alert('Servicio creado correctamente');
+        cargarServicios().then(() => {
+          renderizarCalendario();
+        });
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    }
+    
+    // Show toast
+    function showToast(message, type = 'info') {
+      alert(message);
+    }
+  </script>
+</body>
+</html>

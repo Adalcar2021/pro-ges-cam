@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAMSEG - Inventario</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <i class="fas fa-shield-halved"></i>
+          <span>CAMSEG</span>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Menú Principal</div>
+          <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-house"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="clientes.html" class="nav-item">
+            <i class="fas fa-users"></i>
+            <span>Clientes</span>
+          </a>
+          <a href="agenda.html" class="nav-item">
+            <i class="fas fa-calendar-days"></i>
+            <span>Agenda</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Servicios</div>
+          <a href="servicios.html" class="nav-item">
+            <i class="fas fa-video"></i>
+            <span>Instalaciones</span>
+          </a>
+          <a href="servicios.html?tipo=mantenimiento" class="nav-item">
+            <i class="fas fa-wrench"></i>
+            <span>Mantenimientos</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Gestión</div>
+          <a href="cotizaciones.html" class="nav-item">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <span>Cotizaciones</span>
+          </a>
+          <a href="inventarios.html" class="nav-item active">
+            <i class="fas fa-boxes"></i>
+            <span>Inventario</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Usuario</div>
+          <div class="nav-item">
+            <i class="fas fa-user"></i>
+            <span id="user-name">Cargando...</span>
+          </div>
+          <a href="#" class="nav-item" id="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Cerrar Sesión</span>
+          </a>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="user-initials">U</div>
+          <div class="user-details">
+            <div class="user-name" id="user-name">Usuario</div>
+            <div class="user-role" id="user-role">Rol</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="content-header">
+        <div class="header-title">
+          <h1><i class="fas fa-boxes"></i> Inventario</h1>
+          <p>Gestión de repuestos y materiales</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="openModal()">
+            <i class="fas fa-plus"></i>
+            Nuevo Repuesto
+          </button>
+        </div>
+      </header>
+
+      <!-- Filters -->
+      <div class="filters-section">
+        <div class="filter-group">
+          <label>Categoría:</label>
+          <select id="filter-categoria" onchange="loadInventario()">
+            <option value="">Todas</option>
+            <option value="camaras">Cámaras</option>
+            <option value="dvr">DVR</option>
+            <option value="cables">Cables</option>
+            <option value="fuentes">Fuentes</option>
+            <option value="discos">Discos Duros</option>
+            <option value="accesorios">Accesorios</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label>Estado:</label>
+          <select id="filter-estado" onchange="loadInventario()">
+            <option value="">Todos</option>
+            <option value="activo">Activo</option>
+            <option value="inactivo">Inactivo</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label>Stock:</label>
+          <select id="filter-stock" onchange="loadInventario()">
+            <option value="">Todos</option>
+            <option value="bajo">Stock Bajo</option>
+            <option value="normal">Stock Normal</option>
+            <option value="alto">Stock Alto</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label>Buscar:</label>
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search-input" placeholder="Buscar repuestos..." onkeyup="if(event.key==='Enter') loadInventario()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Inventory Table -->
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Categoría</th>
+              <th>Stock Actual</th>
+              <th>Stock Mínimo</th>
+              <th>Precio Venta</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="inventario-table">
+            <tr>
+              <td colspan="8" class="text-center">
+                <i class="fas fa-spinner fa-spin"></i> Cargando inventario...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Repuesto -->
+  <div id="modal-repuesto" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Nuevo Repuesto</h3>
+        <button class="modal-close" onclick="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <form id="repuesto-form" onsubmit="saveRepuesto(event)">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Código Interno *</label>
+              <input type="text" id="repuesto-codigo" required placeholder="Ej: CAM-001">
+            </div>
+            
+            <div class="form-group">
+              <label>Código Proveedor</label>
+              <input type="text" id="repuesto-codigo-proveedor" placeholder="Código del proveedor">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre *</label>
+              <input type="text" id="repuesto-nombre" required placeholder="Nombre del repuesto">
+            </div>
+            
+            <div class="form-group">
+              <label>Categoría *</label>
+              <select id="repuesto-categoria" required>
+                <option value="">Seleccionar...</option>
+                <option value="camaras">Cámaras</option>
+                <option value="dvr">DVR</option>
+                <option value="cables">Cables</option>
+                <option value="fuentes">Fuentes</option>
+                <option value="discos">Discos Duros</option>
+                <option value="accesorios">Accesorios</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Descripción</label>
+            <textarea id="repuesto-descripcion" rows="3" placeholder="Descripción detallada del repuesto"></textarea>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Marca</label>
+              <input type="text" id="repuesto-marca" placeholder="Marca del producto">
+            </div>
+            
+            <div class="form-group">
+              <label>Modelo</label>
+              <input type="text" id="repuesto-modelo" placeholder="Modelo del producto">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Stock Actual *</label>
+              <input type="number" id="repuesto-stock-actual" min="0" required value="0">
+            </div>
+            
+            <div class="form-group">
+              <label>Stock Mínimo *</label>
+              <input type="number" id="repuesto-stock-minimo" min="0" required value="5">
+            </div>
+            
+            <div class="form-group">
+              <label>Stock Máximo</label>
+              <input type="number" id="repuesto-stock-maximo" min="0" placeholder="Stock máximo deseado">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Costo Unitario *</label>
+              <input type="number" id="repuesto-costo" min="0" step="0.01" required value="0">
+            </div>
+            
+            <div class="form-group">
+              <label>Precio Venta *</label>
+              <input type="number" id="repuesto-precio" min="0" step="0.01" required value="0">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Ubicación en Almacén</label>
+            <input type="text" id="repuesto-ubicacion" placeholder="Ej: Estante A-01">
+          </div>
+          
+          <div class="form-group">
+            <label>Estado</label>
+            <select id="repuesto-estado">
+              <option value="activo">Activo</option>
+              <option value="inactivo">Inactivo</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i>
+            Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Movimiento Stock -->
+  <div id="modal-movimiento" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Movimiento de Stock</h3>
+        <button class="modal-close" onclick="closeModalMovimiento()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <form id="movimiento-form" onsubmit="saveMovimiento(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Repuesto:</label>
+            <input type="text" id="movimiento-repuesto" readonly>
+          </div>
+          
+          <div class="form-group">
+            <label>Stock Actual:</label>
+            <input type="number" id="movimiento-stock-actual" readonly>
+          </div>
+          
+          <div class="form-group">
+            <label>Tipo de Movimiento:</label>
+            <select id="movimiento-tipo" onchange="updateMovimientoFields()">
+              <option value="entrada">Entrada</option>
+              <option value="salida">Salida</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Cantidad:</label>
+            <input type="number" id="movimiento-cantidad" min="1" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Motivo:</label>
+            <textarea id="movimiento-motivo" rows="3" placeholder="Motivo del movimiento" required></textarea>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModalMovimiento()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i>
+            Guardar Movimiento
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    let currentEditId = null;
+
+    // Cargar inventario al iniciar
+    document.addEventListener('DOMContentLoaded', () => {
+      loadInventario();
+    });
+
+    // Cargar lista de inventario
+    async function loadInventario() {
+      try {
+        const categoria = document.getElementById('filter-categoria').value;
+        const estado = document.getElementById('filter-estado').value;
+        const stock = document.getElementById('filter-stock').value;
+        const search = document.getElementById('search-input').value;
+        
+        const response = await api.getInventario({ categoria, estado, stock, search });
+        const inventario = response.inventario || [];
+        
+        const tbody = document.getElementById('inventario-table');
+        tbody.innerHTML = '';
+        
+        if (inventario.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="8" class="text-center">
+                <i class="fas fa-inbox"></i>
+                <p>No se encontraron repuestos</p>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+        
+        inventario.forEach(repuesto => {
+          const row = document.createElement('tr');
+          const stockClass = getStockClass(repuesto.stock_actual, repuesto.stock_minimo);
+          
+          row.innerHTML = `
+            <td>${repuesto.codigo_interno}</td>
+            <td>${repuesto.nombre}</td>
+            <td><span class="badge badge-${repuesto.categoria}">${getCategoriaLabel(repuesto.categoria)}</span></td>
+            <td><span class="${stockClass}">${repuesto.stock_actual}</span></td>
+            <td>${repuesto.stock_minimo}</td>
+            <td>$${formatCurrency(repuesto.precio_venta)}</td>
+            <td><span class="badge badge-${repuesto.estado}">${getEstadoLabel(repuesto.estado)}</span></td>
+            <td>
+              <button class="btn btn-sm btn-info" onclick="verRepuesto(${repuesto.id})" title="Ver">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-warning" onclick="editarRepuesto(${repuesto.id})" title="Editar">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-success" onclick="movimientoStock('entrada', ${repuesto.id})" title="Entrada Stock">
+                <i class="fas fa-plus"></i>
+              </button>
+              <button class="btn btn-sm btn-danger" onclick="movimientoStock('salida', ${repuesto.id})" title="Salida Stock">
+                <i class="fas fa-minus"></i>
+              </button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Error cargando inventario:', error);
+        document.getElementById('inventario-table').innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center">
+              <i class="fas fa-exclamation-triangle"></i>
+              <p>Error al cargar inventario</p>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    // Abrir modal
+    function openModal() {
+      currentEditId = null;
+      document.getElementById('modal-title').textContent = 'Nuevo Repuesto';
+      document.getElementById('repuesto-form').reset();
+      document.getElementById('modal-repuesto').classList.add('show');
+    }
+
+    // Cerrar modal
+    function closeModal() {
+      document.getElementById('modal-repuesto').classList.remove('show');
+    }
+
+    // Guardar repuesto
+    async function saveRepuesto(event) {
+      event.preventDefault();
+      
+      try {
+        const data = {
+          codigo_interno: document.getElementById('repuesto-codigo').value,
+          codigo_proveedor: document.getElementById('repuesto-codigo-proveedor').value,
+          nombre: document.getElementById('repuesto-nombre').value,
+          descripcion: document.getElementById('repuesto-descripcion').value,
+          categoria: document.getElementById('repuesto-categoria').value,
+          marca: document.getElementById('repuesto-marca').value,
+          modelo: document.getElementById('repuesto-modelo').value,
+          stock_actual: parseInt(document.getElementById('repuesto-stock-actual').value),
+          stock_minimo: parseInt(document.getElementById('repuesto-stock-minimo').value),
+          stock_maximo: parseInt(document.getElementById('repuesto-stock-maximo').value) || null,
+          ubicacion_almacen: document.getElementById('repuesto-ubicacion').value,
+          costo_unitario: parseFloat(document.getElementById('repuesto-costo').value),
+          precio_venta: parseFloat(document.getElementById('repuesto-precio').value),
+          estado: document.getElementById('repuesto-estado').value
+        };
+        
+        if (currentEditId) {
+          await api.updateRepuesto(currentEditId, data);
+        } else {
+          await api.createRepuesto(data);
+        }
+        
+        closeModal();
+        loadInventario();
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    }
+
+    // Ver repuesto
+    async function verRepuesto(id) {
+      try {
+        const response = await api.getRepuesto(id);
+        const repuesto = response.repuesto;
+        
+        const content = `
+          <div class="repuesto-detalles">
+            <div class="detalle-row">
+              <strong>Código Interno:</strong> ${repuesto.codigo_interno}
+            </div>
+            <div class="detalle-row">
+              <strong>Código Proveedor:</strong> ${repuesto.codigo_proveedor || 'N/A'}
+            </div>
+            <div class="detalle-row">
+              <strong>Nombre:</strong> ${repuesto.nombre}
+            </div>
+            <div class="detalle-row">
+              <strong>Categoría:</strong> ${getCategoriaLabel(repuesto.categoria)}
+            </div>
+            <div class="detalle-row">
+              <strong>Marca:</strong> ${repuesto.marca || 'N/A'}
+            </div>
+            <div class="detalle-row">
+              <strong>Modelo:</strong> ${repuesto.modelo || 'N/A'}
+            </div>
+            <div class="detalle-row">
+              <strong>Stock Actual:</strong> ${repuesto.stock_actual}
+            </div>
+            <div class="detalle-row">
+              <strong>Stock Mínimo:</strong> ${repuesto.stock_minimo}
+            </div>
+            <div class="detalle-row">
+              <strong>Precio Venta:</strong> $${formatCurrency(repuesto.precio_venta)}
+            </div>
+            <div class="detalle-row">
+              <strong>Ubicación:</strong> ${repuesto.ubicacion_almacen || 'N/A'}
+            </div>
+            <div class="detalle-row">
+              <strong>Estado:</strong> <span class="badge badge-${repuesto.estado}">${getEstadoLabel(repuesto.estado)}</span>
+            </div>
+          </div>
+        `;
+        
+        // Crear modal temporal para ver detalles
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3>Detalles del Repuesto</h3>
+              <button class="modal-close" onclick="this.closest('.modal').remove()">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="modal-body">${content}</div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">Cerrar</button>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        modal.classList.add('show');
+        
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    }
+
+    // Editar repuesto
+    async function editarRepuesto(id) {
+      try {
+        const response = await api.getRepuesto(id);
+        const r = response.repuesto;
+        
+        currentEditId = id;
+        document.getElementById('modal-title').textContent = 'Editar Repuesto';
+        
+        document.getElementById('repuesto-codigo').value = r.codigo_interno;
+        document.getElementById('repuesto-codigo-proveedor').value = r.codigo_proveedor || '';
+        document.getElementById('repuesto-nombre').value = r.nombre;
+        document.getElementById('repuesto-descripcion').value = r.descripcion || '';
+        document.getElementById('repuesto-categoria').value = r.categoria;
+        document.getElementById('repuesto-marca').value = r.marca || '';
+        document.getElementById('repuesto-modelo').value = r.modelo || '';
+        document.getElementById('repuesto-stock-actual').value = r.stock_actual;
+        document.getElementById('repuesto-stock-minimo').value = r.stock_minimo;
+        document.getElementById('repuesto-stock-maximo').value = r.stock_maximo || '';
+        document.getElementById('repuesto-ubicacion').value = r.ubicacion_almacen || '';
+        document.getElementById('repuesto-costo').value = r.costo_unitario;
+        document.getElementById('repuesto-precio').value = r.precio_venta;
+        document.getElementById('repuesto-estado').value = r.estado;
+        
+        document.getElementById('modal-repuesto').classList.add('show');
+        
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    }
+
+    // Movimiento de stock
+    async function movimientoStock(tipo, id) {
+      try {
+        const response = await api.getRepuesto(id);
+        const repuesto = response.repuesto;
+        
+        document.getElementById('movimiento-repuesto').value = repuesto.nombre;
+        document.getElementById('movimiento-stock-actual').value = repuesto.stock_actual;
+        document.getElementById('movimiento-tipo').value = tipo;
+        document.getElementById('movimiento-cantidad').value = '';
+        document.getElementById('movimiento-motivo').value = '';
+        
+        // Guardar ID del repuesto para el movimiento
+        window.currentRepuestoId = id;
+        
+        document.getElementById('modal-movimiento').classList.add('show');
+        
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    }
+
+    // Guardar movimiento
+    async function saveMovimiento(event) {
+      event.preventDefault();
+      
+      try {
+        const tipo = document.getElementById('movimiento-tipo').value;
+        const cantidad = parseInt(document.getElementById('movimiento-cantidad').value);
+        const motivo = document.getElementById('movimiento-motivo').value;
+        
+        if (tipo === 'entrada') {
+          await api.addStock(window.currentRepuestoId, cantidad, motivo);
+          alert('Stock aumentado correctamente');
+        } else {
+          await api.removeStock(window.currentRepuestoId, cantidad, motivo);
+          alert('Stock descontado correctamente');
+        }
+        
+        closeModalMovimiento();
+        loadInventario();
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    }
+
+    // Cerrar modal movimiento
+    function closeModalMovimiento() {
+      document.getElementById('modal-movimiento').classList.remove('show');
+    }
+
+    // Funciones auxiliares
+    function getStockClass(actual, minimo) {
+      if (actual <= minimo) return 'stock-bajo';
+      if (actual <= minimo * 2) return 'stock-normal';
+      return 'stock-alto';
+    }
+
+    function getCategoriaLabel(categoria) {
+      const labels = {
+        camaras: 'Cámaras',
+        dvr: 'DVR',
+        cables: 'Cables',
+        fuentes: 'Fuentes',
+        discos: 'Discos',
+        accesorios: 'Accesorios'
+      };
+      return labels[categoria] || categoria;
+    }
+
+    function getEstadoLabel(estado) {
+      const labels = {
+        activo: 'Activo',
+        inactivo: 'Inactivo'
+      };
+      return labels[estado] || estado;
+    }
+
+    function formatCurrency(amount) {
+      return parseFloat(amount || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+  </script>
+</body>
+</html>

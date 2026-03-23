@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAMSEG - Login</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-box">
+      <div class="login-logo">
+        <i class="fas fa-shield-halved"></i>
+        <h1>CAMSEG</h1>
+        <p>Seguridad Electrónica</p>
+      </div>
+      
+      <div id="login-error" class="login-error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>Credenciales incorrectas. Intente nuevamente.</span>
+      </div>
+      
+      <form class="login-form" id="login-form">
+        <div class="form-group">
+          <label class="form-label" for="usuario">Usuario</label>
+          <div class="search-box">
+            <i class="fas fa-user"></i>
+            <input type="text" id="usuario" class="form-control" placeholder="Ingrese su usuario" required>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="password">Contraseña</label>
+          <div class="search-box">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="password" class="form-control" placeholder="Ingrese su contraseña" required>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-lg btn-block">
+          <i class="fas fa-sign-in-alt"></i>
+          Iniciar Sesión
+        </button>
+      </form>
+      
+      <div class="login-footer">
+        <p><strong>CAMSEG</strong> &copy; 2025</p>
+        <p>Sistema de Gestión de Servicios</p>
+      </div>
+    </div>
+  </div>
+  
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Login form handler
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const usuario = document.getElementById('usuario').value;
+      const password = document.getElementById('password').value;
+      const errorDiv = document.getElementById('login-error');
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      
+      // Mostrar loading
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+      errorDiv.classList.remove('show');
+      
+      try {
+        await api.login(usuario, password);
+        window.location.href = 'dashboard.html';
+      } catch (error) {
+        errorDiv.classList.add('show');
+        errorDiv.querySelector('span').textContent = error.message || 'Credenciales incorrectas';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar Sesión';
+      }
+    });
+    
+    // Enter key
+    document.getElementById('password').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('login-form').submit();
+      }
+    });
+  </script>
+</body>
+</html>

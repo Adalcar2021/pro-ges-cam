@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAMSEG - Clientes</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <i class="fas fa-shield-halved"></i>
+          <span>CAMSEG</span>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Menú Principal</div>
+          <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-house"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="clientes.html" class="nav-item active">
+            <i class="fas fa-users"></i>
+            <span>Clientes</span>
+          </a>
+          <a href="agenda.html" class="nav-item">
+            <i class="fas fa-calendar-days"></i>
+            <span>Agenda</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Servicios</div>
+          <a href="servicios.html" class="nav-item">
+            <i class="fas fa-video"></i>
+            <span>Instalaciones</span>
+          </a>
+          <a href="servicios.html?tipo=mantenimiento" class="nav-item">
+            <i class="fas fa-wrench"></i>
+            <span>Mantenimientos</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Gestión</div>
+          <a href="cotizaciones.html" class="nav-item">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <span>Cotizaciones</span>
+          </a>
+          <a href="inventario.html" class="nav-item">
+            <i class="fas fa-boxes-stacked"></i>
+            <span>Inventario</span>
+          </a>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="user-initials">AC</div>
+          <div class="user-details">
+            <div class="user-name" id="user-name">Adalberto Cárdenas</div>
+            <div class="user-role" id="user-role">Técnico</div>
+          </div>
+          <button class="logout-btn" id="logout-btn" title="Cerrar sesión">
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="top-header">
+        <h1 class="page-title">
+          <i class="fas fa-users"></i>
+          Clientes
+        </h1>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="openModalNuevoCliente()">
+            <i class="fas fa-plus"></i>
+            Nuevo Cliente
+          </button>
+        </div>
+      </header>
+      
+      <div class="content">
+        <!-- Filtros -->
+        <div class="filter-bar">
+          <div class="search-box" style="flex:1;max-width:400px">
+            <i class="fas fa-search"></i>
+            <input type="text" class="form-control" id="busqueda" placeholder="Buscar clientes..." oninput="buscarClientes()">
+          </div>
+          <select class="form-control" id="filtro-tipo" onchange="buscarClientes()">
+            <option value="">Todos los tipos</option>
+            <option value="residencial">Residencial</option>
+            <option value="empresa">Empresa</option>
+          </select>
+          <select class="form-control" id="filtro-estado" onchange="buscarClientes()">
+            <option value="">Todos los estados</option>
+            <option value="activo" selected>Activos</option>
+            <option value="inactivo">Inactivos</option>
+            <option value="prospecto">Prospectos</option>
+          </select>
+        </div>
+        
+        <!-- Lista de Clientes -->
+        <div class="card">
+          <div class="card-body p-0">
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Cliente</th>
+                    <th>Tipo</th>
+                    <th>Teléfono</th>
+                    <th>Dirección</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="clientes-tbody">
+                  <tr>
+                    <td colspan="6">
+                      <div class="loading"><div class="spinner"></div></div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Paginación -->
+        <div class="flex justify-between items-center mt-4">
+          <span class="text-muted" id="pagination-info">Mostrando 0 clientes</span>
+          <div class="flex gap-2">
+            <button class="btn btn-sm btn-secondary" id="btn-anterior" onclick="paginaAnterior()">Anterior</button>
+            <button class="btn btn-sm btn-secondary" id="btn-siguiente" onclick="paginaSiguiente()">Siguiente</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <!-- Modal Cliente -->
+  <div class="modal-overlay" id="modal-cliente">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <i class="fas fa-user"></i>
+          <span id="modal-titulo">Nuevo Cliente</span>
+        </h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="cliente-form">
+          <input type="hidden" id="cliente-id">
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">Nombre</label>
+              <input type="text" class="form-control" id="cliente-nombre" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tipo</label>
+              <select class="form-control" id="cliente-tipo">
+                <option value="residencial">Residencial</option>
+                <option value="empresa">Empresa</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Documento</label>
+              <input type="text" class="form-control" id="cliente-documento">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Razón Social</label>
+              <input type="text" class="form-control" id="cliente-razon">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">Teléfono</label>
+              <input type="tel" class="form-control" id="cliente-telefono" required>
+            </div>
+                        <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" id="cliente-email">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label required">Dirección</label>
+            <input type="text" class="form-control" id="cliente-direccion" required>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Ciudad</label>
+              <input type="text" class="form-control" id="cliente-ciudad">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Departamento</label>
+              <input type="text" class="form-control" id="cliente-departamento">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Referencia</label>
+            <input type="text" class="form-control" id="cliente-referencia">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Observaciones</label>
+            <textarea class="form-control" id="cliente-observaciones" rows="3"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarCliente()">
+          <i class="fas fa-save"></i>
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal Ver Cliente -->
+  <div class="modal-overlay" id="modal-ver-cliente">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <i class="fas fa-user-circle"></i>
+          Detalles del Cliente
+        </h3>
+        <button class="modal-close" onclick="closeModalVer()">&times;</button>
+      </div>
+      <div class="modal-body" id="cliente-detalle">
+        <!-- Contenido cargado dinámicamente -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModalVer()">Cerrar</button>
+        <button class="btn btn-primary" onclick="editarClienteActual()">
+          <i class="fas fa-edit"></i>
+          Editar
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Variables globales
+    let paginaActual = 1;
+    let clienteActualId = null;
+    
+    // Cargar clientes
+    async function loadClientes() {
+      try {
+        const busqueda = document.getElementById('busqueda').value;
+        const tipo = document.getElementById('filtro-tipo').value;
+        const estado = document.getElementById('filtro-estado').value;
+        
+        const data = await api.getClientes({
+          busqueda,
+          tipo,
+          estado,
+          pagina: paginaActual,
+          limite: 15
+        });
+        
+        renderClientes(data.clientes);
+        renderPaginacion(data.paginacion);
+        
+      } catch (error) {
+        console.error('Error:', error);
+        showToast('Error al cargar clientes', 'error');
+      }
+    }
+    
+    // Renderizar clientes
+    function renderClientes(clientes) {
+      const tbody = document.getElementById('clientes-tbody');
+      
+      if (!clientes || clientes.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6">
+              <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <h3>No hay clientes</h3>
+                <p>Agrega tu primer cliente</p>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      let html = '';
+      clientes.forEach(c => {
+        const tipoIcon = c.tipo_cliente === 'empresa' ? 'fa-building' : 'fa-home';
+        const tipoBadge = c.tipo_cliente === 'empresa' ? 'badge-purple' : 'badge-blue';
+        
+        html += `
+          <tr>
+            <td>
+              <strong>${c.nombre}</strong>
+              ${c.email ? `<div class="text-muted text-sm">${c.email}</div>` : ''}
+            </td>
+            <td>
+              <span class="badge ${tipoBadge}">
+                <i class="fas ${tipoIcon}"></i>
+                ${c.tipo_cliente === 'empresa' ? 'Empresa' : 'Residencial'}
+              </span>
+            </td>
+            <td>
+              <a href="tel:${c.telefono}">${c.telefono}</a>
+            </td>
+            <td class="truncate" style="max-width:200px">${c.direccion}</td>
+            <td>
+              <span class="badge ${c.estado === 'activo' ? 'badge-green' : c.estado === 'prospecto' ? 'badge-orange' : 'badge-gray'}">
+                ${c.estado}
+              </span>
+            </td>
+            <td>
+              <div class="flex gap-1">
+                <button class="btn btn-sm btn-icon btn-secondary" title="Ver" onclick="verCliente(${c.id})">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-icon btn-secondary" title="Editar" onclick="editarCliente(${c.id})">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-icon btn-danger" title="Eliminar" onclick="eliminarCliente(${c.id})">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+      
+      tbody.innerHTML = html;
+    }
+    
+    // Renderizar paginación
+    function renderPaginacion(pag) {
+      document.getElementById('pagination-info').textContent = 
+        `Mostrando ${(pag.pagina - 1) * pag.limite + 1} - ${Math.min(pag.pagina * pag.limite, pag.total)} de ${pag.total}`;
+      
+      document.getElementById('btn-anterior').disabled = pag.pagina <= 1;
+      document.getElementById('btn-siguiente').disabled = pag.pagina >= pag.paginas;
+    }
+    
+    // Buscar clientes
+    function buscarClientes() {
+      paginaActual = 1;
+      loadClientes();
+    }
+    
+    // Pagination
+    function paginaAnterior() {
+      if (paginaActual > 1) {
+        paginaActual--;
+        loadClientes();
+      }
+    }
+    
+    function paginaSiguiente() {
+      paginaActual++;
+      loadClientes();
+    }
+    
+    // Modal nuevo cliente
+    function openModalNuevoCliente() {
+      document.getElementById('modal-titulo').textContent = 'Nuevo Cliente';
+      document.getElementById('cliente-form').reset();
+      document.getElementById('cliente-id').value = '';
+      document.getElementById('modal-cliente').classList.add('show');
+    }
+    
+    // Cerrar modal
+    function closeModal() {
+      document.getElementById('modal-cliente').classList.remove('show');
+    }
+    
+    // Cerrar modal ver
+    function closeModalVer() {
+      document.getElementById('modal-ver-cliente').classList.remove('show');
+    }
+    
+    // Guardar cliente
+    async function guardarCliente() {
+      const id = document.getElementById('cliente-id').value;
+      const data = {
+        nombre: document.getElementById('cliente-nombre').value,
+        tipo_cliente: document.getElementById('cliente-tipo').value,
+        documento: document.getElementById('cliente-documento').value,
+        razon_social: document.getElementById('cliente-razon').value,
+        telefono: document.getElementById('cliente-telefono').value,
+        email: document.getElementById('cliente-email').value,
+        direccion: document.getElementById('cliente-direccion').value,
+        ciudad: document.getElementById('cliente-ciudad').value,
+        departamento: document.getElementById('cliente-departamento').value,
+        referencia_direccion: document.getElementById('cliente-referencia').value,
+        observaciones: document.getElementById('cliente-observaciones').value
+      };
+      
+      try {
+        if (id) {
+          await api.updateCliente(id, data);
+          showToast('Cliente actualizado', 'success');
+        } else {
+          await api.createCliente(data);
+          showToast('Cliente creado', 'success');
+        }
+        closeModal();
+        loadClientes();
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
+    }
+    
+    // Ver cliente
+    async function verCliente(id) {
+      try {
+        const data = await api.getCliente(id);
+        const c = data.cliente;
+        
+        clienteActualId = id;
+        
+        const html = `
+          <div class="grid grid-2 gap-4 mb-4">
+            <div>
+              <label class="text-muted text-sm">Nombre</label>
+              <p class="font-semibold">${c.nombre}</p>
+            </div>
+            <div>
+              <label class="text-muted text-sm">Tipo</label>
+              <p class="font-semibold">${c.tipo_cliente === 'empresa' ? 'Empresa' : 'Residencial'}</p>
+            </div>
+            <div>
+              <label class="text-muted text-sm">Teléfono</label>
+              <p class="font-semibold"><a href="tel:${c.telefono}">${c.telefono}</a></p>
+            </div>
+            <div>
+              <label class="text-muted text-sm">Email</label>
+              <p class="font-semibold">${c.email || '-'}</p>
+            </div>
+          </div>
+          
+          <div class="mb-4">
+            <label class="text-muted text-sm">Dirección</label>
+            <p class="font-semibold">${c.direccion}</p>
+            <p class="text-sm text-muted">${c.ciudad || ''} ${c.departamento || ''}</p>
+          </div>
+          
+          <div class="mb-4">
+            <label class="text-muted text-sm">Documento</label>
+            <p class="font-semibold">${c.documento || '-'}</p>
+          </div>
+          
+          ${c.observaciones ? `
+          <div class="mb-4">
+            <label class="text-muted text-sm">Observaciones</label>
+            <p>${c.observaciones}</p>
+          </div>
+          ` : ''}
+          
+          <hr class="my-4">
+          
+          <h4 class="font-semibold mb-3">
+            <i class="fas fa-history"></i> Historial de Servicios
+          </h4>
+          ${data.servicios && data.servicios.length > 0 ? `
+            <div class="table-container">
+              <table class="text-sm">
+                <thead>
+                  <tr>
+                    <th>Tipo</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${data.servicios.map(s => `
+                    <tr>
+                      <td>${s.tipo_servicio}</td>
+                      <td>${new Date(s.fecha_programada).toLocaleDateString()}</td>
+                      <td><span class="badge badge-${s.estado === 'completado' ? 'green' : 'orange'}">${s.estado}</span></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          ` : '<p class="text-muted">Sin servicios registrados</p>'}
+        `;
+        
+        document.getElementById('cliente-detalle').innerHTML = html;
+        document.getElementById('modal-ver-cliente').classList.add('show');
+        
+      } catch (error) {
+        showToast('Error al cargar cliente', 'error');
+      }
+    }
+    
+    // Editar cliente
+    async function editarCliente(id) {
+      try {
+        const data = await api.getCliente(id);
+        const c = data.cliente;
+        
+        document.getElementById('modal-titulo').textContent = 'Editar Cliente';
+        document.getElementById('cliente-id').value = c.id;
+        document.getElementById('cliente-nombre').value = c.nombre;
+        document.getElementById('cliente-tipo').value = c.tipo_cliente;
+        document.getElementById('cliente-documento').value = c.documento || '';
+        document.getElementById('cliente-razon').value = c.razon_social || '';
+        document.getElementById('cliente-telefono').value = c.telefono;
+        document.getElementById('cliente-email').value = c.email || '';
+        document.getElementById('cliente-direccion').value = c.direccion;
+        document.getElementById('cliente-ciudad').value = c.ciudad || '';
+        document.getElementById('cliente-departamento').value = c.departamento || '';
+        document.getElementById('cliente-referencia').value = c.referencia_direccion || '';
+        document.getElementById('cliente-observaciones').value = c.observaciones || '';
+        
+        document.getElementById('modal-cliente').classList.add('show');
+        
+      } catch (error) {
+        showToast('Error al cargar cliente', 'error');
+      }
+    }
+    
+    // Editar cliente desde ver
+    function editarClienteActual() {
+      if (clienteActualId) {
+        closeModalVer();
+        setTimeout(() => editarCliente(clienteActualId), 200);
+      }
+    }
+    
+    // Eliminar cliente
+    async function eliminarCliente(id) {
+      if (!confirm('¿Estás seguro de eliminar este cliente?')) return;
+      
+      try {
+        await api.deleteCliente(id);
+        showToast('Cliente eliminado', 'success');
+        loadClientes();
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
+    }
+    
+    // Show toast
+    function showToast(message, type = 'info') {
+      alert(message);
+    }
+    
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', () => {
+      loadClientes();
+    });
+  </script>
+</body>
+</html>

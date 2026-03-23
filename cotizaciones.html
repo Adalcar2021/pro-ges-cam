@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAMSEG - Cotizaciones</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <i class="fas fa-shield-halved"></i>
+          <span>CAMSEG</span>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Menú Principal</div>
+          <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-house"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="clientes.html" class="nav-item">
+            <i class="fas fa-users"></i>
+            <span>Clientes</span>
+          </a>
+          <a href="agenda.html" class="nav-item">
+            <i class="fas fa-calendar-days"></i>
+            <span>Agenda</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Servicios</div>
+          <a href="servicios.html" class="nav-item">
+            <i class="fas fa-video"></i>
+            <span>Instalaciones</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Gestión</div>
+          <a href="cotizaciones.html" class="nav-item active">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <span>Cotizaciones</span>
+          </a>
+          <a href="inventarios.html" class="nav-item">
+            <i class="fas fa-boxes"></i>
+            <span>Inventario</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Usuario</div>
+          <div class="nav-item">
+            <i class="fas fa-user"></i>
+            <span id="user-name">Cargando...</span>
+          </div>
+          <a href="#" class="nav-item" id="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Cerrar Sesión</span>
+          </a>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="user-initials">U</div>
+          <div class="user-details">
+            <div class="user-name" id="user-name">Usuario</div>
+            <div class="user-role" id="user-role">Rol</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="content-header">
+        <div class="header-title">
+          <h1><i class="fas fa-file-invoice-dollar"></i> Cotizaciones</h1>
+          <p>Gestión de cotizaciones y presupuestos</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="openModal()">
+            <i class="fas fa-plus"></i>
+            Nueva Cotización
+          </button>
+        </div>
+      </header>
+
+      <!-- Filters -->
+      <div class="filters-section">
+        <div class="filter-group">
+          <label>Estado:</label>
+          <select id="filter-estado" onchange="loadCotizaciones()">
+            <option value="">Todos</option>
+            <option value="pendiente">Pendiente</option>
+            <option value="aprobada">Aprobada</option>
+            <option value="rechazada">Rechazada</option>
+            <option value="vencida">Vencida</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label>Cliente:</label>
+          <select id="filter-cliente" onchange="loadCotizaciones()">
+            <option value="">Todos</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label>Buscar:</label>
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search-input" placeholder="Buscar cotizaciones..." onkeyup="if(event.key==='Enter') loadCotizaciones()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Quotes Table -->
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Cliente</th>
+              <th>Vendedor</th>
+              <th>Fecha Emisión</th>
+              <th>Estado</th>
+              <th>Total</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="cotizaciones-table">
+            <tr>
+              <td colspan="7" class="text-center">
+                <i class="fas fa-spinner fa-spin"></i> Cargando cotizaciones...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Cotización -->
+  <div id="modal-cotizacion" class="modal">
+    <div class="modal-content large">
+      <div class="modal-header">
+        <h3 id="modal-title">Nueva Cotización</h3>
+        <button class="modal-close" onclick="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <form id="cotizacion-form" onsubmit="saveCotizacion(event)">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Cliente *</label>
+              <select id="cotizacion-cliente" required onchange="updateClienteInfo()">
+                <option value="">Seleccionar cliente...</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Fecha Validez</label>
+              <input type="date" id="cotizacion-validez">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Notas</label>
+            <textarea id="cotizacion-notas" rows="3" placeholder="Notas adicionales de la cotización"></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label>Forma de Pago</label>
+            <input type="text" id="cotizacion-forma-pago" placeholder="Ej: 50% anticipo, 50% contra entrega">
+          </div>
+          
+          <div class="form-group">
+            <label>Tiempo de Entrega</label>
+            <input type="text" id="cotizacion-plazo" placeholder="Ej: 5 días hábiles">
+          </div>
+          
+          <div class="form-group">
+            <label>Garantía</label>
+            <input type="text" id="cotizacion-garantia" placeholder="Ej: 1 año">
+          </div>
+          
+          <!-- Detalles de cotización -->
+          <div class="detalles-section">
+            <div class="detalles-header">
+              <h4>Detalles de la Cotización</h4>
+              <button type="button" class="btn btn-sm btn-primary" onclick="addDetalle()">
+                <i class="fas fa-plus"></i> Agregar Item
+              </button>
+            </div>
+            
+            <div class="detalles-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Concepto</th>
+                    <th>Descripción</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Descuento</th>
+                    <th>Subtotal</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="detalles-tbody">
+                  <tr>
+                    <td colspan="7" class="text-center">No hay detalles agregados</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <!-- Totales -->
+            <div class="totales-section">
+              <div class="totales-row">
+                <label>Subtotal:</label>
+                <span id="subtotal">$0.00</span>
+              </div>
+              <div class="totales-row">
+                <label>IVA (12%):</label>
+                <span id="iva">$0.00</span>
+              </div>
+              <div class="totales-row total">
+                <label>Total:</label>
+                <span id="total">$0.00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i>
+            Guardar Cotización
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Ver Cotización -->
+  <div id="modal-ver" class="modal">
+    <div class="modal-content large">
+      <div class="modal-header">
+        <h3>Detalles de Cotización</h3>
+        <button class="modal-close" onclick="closeModalVer()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body" id="ver-cotizacion-content">
+        <!-- Content loaded dynamically -->
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModalVer()">Cerrar</button>
+        <button class="btn btn-success" onclick="convertirServicio()" id="btn-convertir" style="display:none;">
+          <i class="fas fa-exchange-alt"></i>
+          Convertir a Servicio
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    let currentEditId = null;
+    let detalles = [];
+
+    // Cargar cotizaciones al iniciar
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCotizaciones();
+      loadClientes();
+    });
+
+    // Cargar lista de cotizaciones
+    async function loadCotizaciones() {
+      try {
+        const estado = document.getElementById('filter-estado').value;
+        const id_cliente = document.getElementById('filter-cliente').value;
+        const search = document.getElementById('search-input').value;
+        
+        const response = await api.getCotizaciones({ estado, id_cliente, search });
+        const cotizaciones = response.cotizaciones || [];
+        
+        const tbody = document.getElementById('cotizaciones-table');
+        tbody.innerHTML = '';
+        
+        if (cotizaciones.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="7" class="text-center">
+                <i class="fas fa-inbox"></i>
+                <p>No se encontraron cotizaciones</p>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+        
+        cotizaciones.forEach(cotizacion => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${cotizacion.codigo_cotizacion}</td>
+            <td>${cotizacion.cliente_nombre || 'N/A'}</td>
+            <td>${cotizacion.vendedor_nombre || 'N/A'}</td>
+            <td>${formatDate(cotizacion.fecha_emision)}</td>
+            <td><span class="badge badge-${cotizacion.estado}">${getEstadoLabel(cotizacion.estado)}</span></td>
+            <td>$${formatCurrency(cotizacion.total)}</td>
+            <td>
+              <button class="btn btn-sm btn-info" onclick="verCotizacion(${cotizacion.id})" title="Ver">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-warning" onclick="editarCotizacion(${cotizacion.id})" title="Editar">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-success" onclick="convertirCotizacion(${cotizacion.id})" title="Convertir a Servicio" ${cotizacion.estado !== 'aprobada' ? 'style="display:none;"' : ''}>
+                <i class="fas fa-exchange-alt"></i>
+              </button>
+              <button class="btn btn-sm btn-danger" onclick="eliminarCotizacion(${cotizacion.id})" title="Eliminar">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Error cargando cotizaciones:', error);
+        document.getElementById('cotizaciones-table').innerHTML = `
+          <tr>
+            <td colspan="7" class="text-center">
+              <i class="fas fa-exclamation-triangle"></i>
+              <p>Error al cargar cotizaciones</p>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    // Cargar clientes para select
+    async function loadClientes() {
+      try {
+        const response = await api.getClientes();
+        const clientes = response.clientes || [];
+        
+        const select = document.getElementById('cotizacion-cliente');
+        const filterSelect = document.getElementById('filter-cliente');
+        
+        select.innerHTML = '<option value="">Seleccionar cliente...</option>';
+        filterSelect.innerHTML = '<option value="">Todos</option>';
+        
+        clientes.forEach(cliente => {
+          const option = document.createElement('option');
+          option.value = cliente.id;
+          option.textContent = cliente.nombre;
+          select.appendChild(option);
+          
+          const filterOption = document.createElement('option');
+          filterOption.value = cliente.id;
+          filterOption.textContent = cliente.nombre;
+          filterSelect.appendChild(filterOption);
+        });
+      } catch (error) {
+        console.error('Error cargando clientes:', error);
+      }
+    }
+
+    // Abrir modal
+    function openModal() {
+      currentEditId = null;
+      document.getElementById('modal-title').textContent = 'Nueva Cotización';
+      document.getElementById('cotizacion-form').reset();
+      detalles = [];
+      updateDetallesTable();
+      calculateTotals();
+      document.getElementById('modal-cotizacion').classList.add('show');
+    }
+
+    // Cerrar modal
+    function closeModal() {
+      document.getElementById('modal-cotizacion').classList.remove('show');
+    }
+
+    // Agregar detalle
+    function addDetalle() {
+      const detalle = {
+        concepto: '',
+        descripcion: '',
+        cantidad: 1,
+        precio_unitario: 0,
+        descuento: 0,
+        subtotal: 0
+      };
+      detalles.push(detalle);
+      updateDetallesTable();
+    }
+
+    // Actualizar tabla de detalles
+    function updateDetallesTable() {
+      const tbody = document.getElementById('detalles-tbody');
+      tbody.innerHTML = '';
+      
+      if (detalles.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center">No hay detalles agregados</td></tr>';
+        return;
+      }
+      
+      detalles.forEach((detalle, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><input type="text" value="${detalle.concepto}" onchange="updateDetalle(${index}, 'concepto', this.value)" placeholder="Concepto"></td>
+          <td><input type="text" value="${detalle.descripcion}" onchange="updateDetalle(${index}, 'descripcion', this.value)" placeholder="Descripción"></td>
+          <td><input type="number" value="${detalle.cantidad}" min="1" onchange="updateDetalle(${index}, 'cantidad', this.value)"></td>
+          <td><input type="number" value="${detalle.precio_unitario}" min="0" step="0.01" onchange="updateDetalle(${index}, 'precio_unitario', this.value)"></td>
+          <td><input type="number" value="${detalle.descuento}" min="0" step="0.01" onchange="updateDetalle(${index}, 'descuento', this.value)"></td>
+          <td>$${formatCurrency(detalle.subtotal)}</td>
+          <td>
+            <button type="button" class="btn btn-sm btn-danger" onclick="removeDetalle(${index})">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Actualizar detalle
+    function updateDetalle(index, field, value) {
+      if (field === 'cantidad' || field === 'precio_unitario' || field === 'descuento') {
+        detalles[index][field] = parseFloat(value) || 0;
+      } else {
+        detalles[index][field] = value;
+      }
+      
+      // Calcular subtotal
+      const { cantidad, precio_unitario, descuento } = detalles[index];
+      detalles[index].subtotal = (cantidad * precio_unitario) - descuento;
+      
+      updateDetallesTable();
+      calculateTotals();
+    }
+
+    // Eliminar detalle
+    function removeDetalle(index) {
+      detalles.splice(index, 1);
+      updateDetallesTable();
+      calculateTotals();
+    }
+
+    // Calcular totales
+    function calculateTotals() {
+      const subtotal = detalles.reduce((sum, d) => sum + d.subtotal, 0);
+      const iva = subtotal * 0.12;
+      const total = subtotal + iva;
+      
+      document.getElementById('subtotal').textContent = `$${formatCurrency(subtotal)}`;
+      document.getElementById('iva').textContent = `$${formatCurrency(iva)}`;
+      document.getElementById('total').textContent = `$${formatCurrency(total)}`;
+    }
+
+    // Guardar cotización
+    async function saveCotizacion(event) {
+      event.preventDefault();
+      
+      try {
+        if (detalles.length === 0) {
+          alert('Debe agregar al menos un detalle a la cotización');
+          return;
+        }
+        
+        const data = {
+          id_cliente: document.getElementById('cotizacion-cliente').value,
+          fecha_validez: document.getElementById('cotizacion-validez').value,
+          detalles: detalles,
+          forma_pago: document.getElementById('cotizacion-forma-pago').value,
+          tiempo_entrega: document.getElementById('cotizacion-plazo').value,
+          garantia: document.getElementById('cotizacion-garantia').value,
+          notas: document.getElementById('cotizacion-notas').value
+        };
+        
+        if (currentEditId) {
+          await api.updateCotizacion(currentEditId, data);
+        } else {
+          await api.createCotizacion(data);
+        }
+        
+        closeModal();
+        loadCotizaciones();
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    }
+
+    // Ver cotización
+    async function verCotizacion(id) {
+      try {
+        const response = await api.getCotizacion(id);
+        const { cotizacion, detalles } = response;
+        
+        const content = document.getElementById('ver-cotizacion-content');
+        content.innerHTML = `
+          <div class="cotizacion-detalles">
+            <div class="detalle-row">
+              <strong>Código:</strong> ${cotizacion.codigo_cotizacion}
+            </div>
+            <div class="detalle-row">
+              <strong>Cliente:</strong> ${cotizacion.cliente_nombre || 'N/A'}
+            </div>
+            <div class="detalle-row">
+              <strong>Vendedor:</strong> ${cotizacion.vendedor_nombre || 'N/A'}
+            </div>
+            <div class="detalle-row">
+              <strong>Fecha Emisión:</strong> ${formatDate(cotizacion.fecha_emision)}
+            </div>
+            <div class="detalle-row">
+              <strong>Fecha Validez:</strong> ${formatDate(cotizacion.fecha_validez)}
+            </div>
+            <div class="detalle-row">
+              <strong>Estado:</strong> <span class="badge badge-${cotizacion.estado}">${getEstadoLabel(cotizacion.estado)}</span>
+            </div>
+            
+            <h4>Detalles:</h4>
+            <table class="detalles-table">
+              <thead>
+                <tr>
+                  <th>Concepto</th>
+                  <th>Descripción</th>
+                  <th>Cantidad</th>
+                  <th>Precio</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${detalles.map(d => `
+                  <tr>
+                    <td>${d.concepto}</td>
+                    <td>${d.descripcion}</td>
+                    <td>${d.cantidad}</td>
+                    <td>$${formatCurrency(d.precio_unitario)}</td>
+                    <td>$${formatCurrency(d.subtotal)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+            
+            <div class="totales-section">
+              <div class="totales-row">
+                <strong>Subtotal:</strong> $${formatCurrency(cotizacion.subtotal)}
+              </div>
+              <div class="totales-row">
+                <strong>IVA:</strong> $${formatCurrency(cotizacion.impuesto_valor)}
+              </div>
+              <div class="totales-row total">
+                <strong>Total:</strong> $${formatCurrency(cotizacion.total)}
+              </div>
+            </div>
+          </div>
+        `;
+        
+        // Mostrar botón de convertir si está aprobada
+        const btnConvertir = document.getElementById('btn-convertir');
+        if (cotizacion.estado === 'aprobada') {
+          btnConvertir.style.display = 'inline-block';
+          btnConvertir.onclick = () => convertirCotizacion(id);
+        } else {
+          btnConvertir.style.display = 'none';
+        }
+        
+        document.getElementById('modal-ver').classList.add('show');
+        
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    }
+
+    // Editar cotización
+    async function editarCotizacion(id) {
+      try {
+        const response = await api.getCotizacion(id);
+        const { cotizacion, detalles } = response;
+        
+        currentEditId = id;
+        document.getElementById('modal-title').textContent = 'Editar Cotización';
+        
+        document.getElementById('cotizacion-cliente').value = cotizacion.id_cliente;
+        document.getElementById('cotizacion-validez').value = cotizacion.fecha_validez;
+        document.getElementById('cotizacion-forma-pago').value = cotizacion.forma_pago || '';
+        document.getElementById('cotizacion-plazo').value = cotizacion.plazo_entrega || '';
+        document.getElementById('cotizacion-garantia').value = cotizacion.garantia || '';
+        document.getElementById('cotizacion-notas').value = cotizacion.notas || '';
+        
+        detalles = detalles.map(d => ({
+          concepto: d.concepto,
+          descripcion: d.descripcion,
+          cantidad: d.cantidad,
+          precio_unitario: d.precio_unitario,
+          descuento: d.descuento || 0,
+          subtotal: d.subtotal
+        }));
+        
+        updateDetallesTable();
+        calculateTotals();
+        document.getElementById('modal-cotizacion').classList.add('show');
+        
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    }
+
+    // Convertir cotización a servicio
+    async function convertirCotizacion(id) {
+      if (!confirm('¿Estás seguro de convertir esta cotización en un servicio?')) return;
+      
+      try {
+        await api.convertirCotizacion(id);
+        alert('Cotización convertida a servicio exitosamente');
+        window.location.href = 'servicios.html';
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    }
+
+    // Eliminar cotización
+    async function eliminarCotizacion(id) {
+      if (!confirm('¿Estás seguro de eliminar esta cotización?')) return;
+      
+      try {
+        await api.deleteCotizacion(id);
+        loadCotizaciones();
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    }
+
+    // Funciones auxiliares
+    function getEstadoLabel(estado) {
+      const labels = {
+        pendiente: 'Pendiente',
+        aprobada: 'Aprobada',
+        rechazada: 'Rechazada',
+        vencida: 'Vencida'
+      };
+      return labels[estado] || estado;
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return 'N/A';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    }
+
+    function formatCurrency(amount) {
+      return parseFloat(amount || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+  </script>
+</body>
+</html>
